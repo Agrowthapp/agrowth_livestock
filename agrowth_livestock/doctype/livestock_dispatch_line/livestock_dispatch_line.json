@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "beta": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "herd_batch",
+  "item_code",
+  "category",
+  "column_break_4",
+  "qty_heads",
+  "avg_weight",
+  "column_break_8",
+  "unit_price",
+  "amount",
+  "tax_rate",
+  "tax_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "herd_batch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tropa Origen",
+   "options": "Herd Batch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artículo",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "Categoría",
+   "options": "Ternero\nNovillo\nVaquillona\nVaca\nToro\nOtro"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty_heads",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Cabezas",
+   "reqd": 1
+  },
+  {
+   "fieldname": "avg_weight",
+   "fieldtype": "Float",
+   "label": "Peso Promedio (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unit_price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Precio Unitario",
+   "options": "currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "formula": "qty_heads * unit_price",
+   "in_list_view": 1,
+   "label": "Importe",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Float",
+   "label": "% IVA",
+   "precision": "2"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Currency",
+   "formula": "amount * (tax_rate / 100)",
+   "label": "IVA",
+   "options": "currency",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Dispatch Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format: RCL-{YYYY}-{####}",
+ "beta": 0,
+ "build_meta_for": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "posting_date",
+  "column_break_3",
+  "herd_batch",
+  "from_item",
+  "to_item",
+  "column_break_7",
+  "qty",
+  "reason",
+  "generated_section",
+  "stock_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "herd_batch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tropa Origen",
+   "options": "Herd Batch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artículo Origen",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artículo Destino",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Cantidad",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Motivo"
+  },
+  {
+   "fieldname": "generated_section",
+   "fieldtype": "Section Break",
+   "label": "Documento Generado"
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "label": "Movimiento de Stock",
+   "options": "Stock Entry",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Reclassification",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "name",
+ "track_changes": 1
+}

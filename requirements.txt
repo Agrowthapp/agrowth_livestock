@@ -1,0 +1,3 @@
+# dependencies for this app to work
+# e.g., pycountry, frappe>=15
+frappe>=15

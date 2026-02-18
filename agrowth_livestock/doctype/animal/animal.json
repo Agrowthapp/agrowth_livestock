@@ -1,0 +1,168 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field: ear_tag_id",
+ "beta": 0,
+ "build_meta_for": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ear_tag_id",
+  "animal_details_section",
+  "species",
+  "sex",
+  "breed",
+  "column_break_6",
+  "current_category",
+  "birth_date",
+  "current_weight",
+  "location_section",
+  "current_herd_batch",
+  "warehouse",
+  "column_break_14",
+  "origin_section",
+  "origin_type",
+  "origin_document",
+  "tracking_section",
+  "serial_no"
+ ],
+ "fields": [
+  {
+   "fieldname": "ear_tag_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Número de Caravana",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "animal_details_section",
+   "fieldtype": "Section Break",
+   "label": "Detalles del Animal"
+  },
+  {
+   "fieldname": "species",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Especie",
+   "options": "Bovino\nPorcino\nOvino\nCaprino\nOtro",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sex",
+   "fieldtype": "Select",
+   "label": "Sexo",
+   "options": "Macho\nHembra\nDesconocido"
+  },
+  {
+   "fieldname": "breed",
+   "fieldtype": "Data",
+   "label": "Raza"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "current_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Categoría Actual",
+   "options": "Ternero\nNovillo\nVaquillona\nVaca\nToro\nOtro",
+   "reqd": 1
+  },
+  {
+   "fieldname": "birth_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Nacimiento"
+  },
+  {
+   "fieldname": "current_weight",
+   "fieldtype": "Float",
+   "label": "Peso Actual (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "Ubicación"
+  },
+  {
+   "fieldname": "current_herd_batch",
+   "fieldtype": "Link",
+   "label": "Tropa Actual",
+   "options": "Herd Batch"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Depósito Actual",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "origin_section",
+   "fieldtype": "Section Break",
+   "label": "Origen"
+  },
+  {
+   "fieldname": "origin_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Origen",
+   "options": "Purchase\nBirth\nTransfer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "origin_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Documento Origen",
+   "options": "origin_type"
+  },
+  {
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento"
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "label": "Número de Serie",
+   "options": "Serial No",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Animal",
+ "naming_rule": "Field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "ear_tag_id",
+ "track_changes": 1
+}

@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format: EVT-{YYYY}-{####}",
+ "beta": 0,
+ "build_meta_for": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "animal",
+  "event_type",
+  "event_date",
+  "column_break_4",
+  "weight_section",
+  "weight",
+  "new_weight",
+  "column_break_8",
+  "category_section",
+  "new_category",
+  "location_section",
+  "new_warehouse",
+  "new_herd_batch",
+  "column_break_14",
+  "health_section",
+  "treatment",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "animal",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Animal",
+   "options": "Animal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Evento",
+   "options": "Pesada\nSanidad\nMovimiento\nMortandad\nCambio de Categoría\nOtro",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Fecha/Hora",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "weight_section",
+   "fieldtype": "Section Break",
+   "label": "Peso"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Peso Anterior (kg)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "new_weight",
+   "fieldtype": "Float",
+   "label": "Peso Nuevo (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category_section",
+   "fieldtype": "Section Break",
+   "label": "Categoría"
+  },
+  {
+   "fieldname": "new_category",
+   "fieldtype": "Select",
+   "label": "Nueva Categoría",
+   "options": "Ternero\nNovillo\nVaquillona\nVaca\nToro\nOtro"
+  },
+  {
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "Ubicación"
+  },
+  {
+   "fieldname": "new_warehouse",
+   "fieldtype": "Link",
+   "label": "Nuevo Depósito",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "new_herd_batch",
+   "fieldtype": "Link",
+   "label": "Nueva Tropa",
+   "options": "Herd Batch"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "health_section",
+   "fieldtype": "Section Break",
+   "label": "Sanidad"
+  },
+  {
+   "fieldname": "treatment",
+   "fieldtype": "Small Text",
+   "label": "Tratamiento"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Animal Event",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "animal",
+ "track_changes": 1
+}

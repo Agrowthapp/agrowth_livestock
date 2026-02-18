@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "beta": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "withholding_type",
+  "tax_category",
+  "column_break_3",
+  "rate",
+  "fixed_amount",
+  "column_break_6",
+  "min_base",
+  "effective_from",
+  "effective_to"
+ ],
+ "fields": [
+  {
+   "fieldname": "withholding_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Retención",
+   "options": "IIBB\nIIGG\nSellos\nComisión",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tax_category",
+   "fieldtype": "Select",
+   "label": "Categoría Fiscal",
+   "options": "Responsable Inscripto\nMonotributista\nExento\nNo Responsable"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Porcentaje (%)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "fixed_amount",
+   "fieldtype": "Currency",
+   "label": "Monto Fijo",
+   "options": "currency"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "min_base",
+   "fieldtype": "Currency",
+   "label": "Base Mínima",
+   "options": "currency"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Vigente Desde",
+   "reqd": 1
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Vigente Hasta"
+  }
+ ],
+ "is_submittable": 0,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Configuration",
+ "name": "Withholding Rule",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

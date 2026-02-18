@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "beta": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "species",
+  "category",
+  "item_code",
+  "column_break_4",
+  "qty_heads",
+  "avg_weight",
+  "total_weight",
+  "column_break_8",
+  "unit_price",
+  "amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "species",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Especie",
+   "options": "Bovino\nPorcino\nOvino\nCaprino\nOtro",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Categoría",
+   "options": "Ternero\nNovillo\nVaquillona\nVaca\nToro\nOtro",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artículo",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty_heads",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Cabezas",
+   "reqd": 1
+  },
+  {
+   "fieldname": "avg_weight",
+   "fieldtype": "Float",
+   "label": "Peso Promedio (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "total_weight",
+   "fieldtype": "Float",
+   "formula": "qty_heads * avg_weight",
+   "in_list_view": 1,
+   "label": "Peso Total (kg)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unit_price",
+   "fieldtype": "Currency",
+   "label": "Precio Unitario",
+   "options": "currency"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "formula": "qty_heads * unit_price",
+   "in_list_view": 1,
+   "label": "Importe",
+   "options": "currency",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Herd Batch Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

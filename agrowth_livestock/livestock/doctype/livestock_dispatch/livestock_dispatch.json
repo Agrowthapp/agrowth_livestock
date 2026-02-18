@@ -1,0 +1,204 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format: DVD-{YYYY}-{####}",
+ "beta": 0,
+ "build_meta_for": 0,
+ "creation": "2026-02-13 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "customer",
+  "posting_date",
+  "column_break_3",
+  "mode",
+  "herd_batch",
+  "warehouse_section",
+  "warehouse",
+  "province",
+  "column_break_9",
+  "withholding_profile",
+  "line_section",
+  "items",
+  "totals_section",
+  "total_bruto",
+  "total_iva",
+  "total_retenciones",
+  "column_break_22",
+  "total_neto",
+  "generated_section",
+  "sales_invoice",
+  "stock_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cliente",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Modo",
+   "options": "Full Batch\nMixed",
+   "reqd": 1,
+   "default": "Full Batch"
+  },
+  {
+   "fieldname": "herd_batch",
+   "fieldtype": "Link",
+   "label": "Tropa (Completa)",
+   "options": "Herd Batch"
+  },
+  {
+   "fieldname": "warehouse_section",
+   "fieldtype": "Section Break",
+   "label": "Origen"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Depósito",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "province",
+   "fieldtype": "Select",
+   "label": "Provincia",
+   "options": "Buenos Aires\nCABA\nCatamarca\nChaco\nChubut\nCórdoba\nCorrientes\nEntre Ríos\nFormosa\nJujuy\nLa Pampa\nLa Rioja\nMendoza\nMisiones\nNeuquén\nRío Negro\nSalta\nSan Juan\nSan Luis\nSanta Cruz\nSanta Fe\nSantiago del Estero\nTierra del Fuego\nTucumán",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "withholding_profile",
+   "fieldtype": "Link",
+   "label": "Perfil de Retenciones",
+   "options": "Withholding Profile"
+  },
+  {
+   "fieldname": "line_section",
+   "fieldtype": "Section Break",
+   "label": "Líneas"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Artículos",
+   "options": "Livestock Dispatch Line"
+  },
+  {
+   "fieldname": "totals_section",
+   "fieldtype": "Section Break",
+   "label": "Totales"
+  },
+  {
+   "fieldname": "total_bruto",
+   "fieldtype": "Currency",
+   "formula": "sum(items.amount)",
+   "label": "Bruto",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_iva",
+   "fieldtype": "Currency",
+   "label": "IVA",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_retenciones",
+   "fieldtype": "Currency",
+   "label": "Retenciones",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_neto",
+   "fieldtype": "Currency",
+   "label": "Neto a Cobrar",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "generated_section",
+   "fieldtype": "Section Break",
+   "label": "Documentos Generados"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Factura de Venta",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "label": "Salida de Stock",
+   "options": "Stock Entry",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Dispatch",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "name",
+ "track_changes": 1
+}
