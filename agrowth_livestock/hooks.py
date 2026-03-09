@@ -115,3 +115,7 @@ doc_events = {
 # migration_patches = {
 #     "0.0.1": ["agrowth_livestock.migrations.set_first_value"]
 # }
+
+after_install = "agrowth_livestock.workspace_setup.ensure_workspaces"
+
+after_migrate = ["agrowth_livestock.workspace_setup.ensure_workspaces"]

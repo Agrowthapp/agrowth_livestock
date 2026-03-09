@@ -254,6 +254,37 @@ Logs are located at:
 /home/frappe/frappe-bench/logs/
 ```
 
+## Frontend Integration
+
+This app can be used standalone with ERPNext or integrated with the **Agrowth** frontend.
+
+### Standalone Usage
+
+Use the standard Frappe/ERPNext interface:
+- Go to: **Livestock > [Module]**
+- Create and manage from the backend UI
+
+### Agrowth Frontend Integration
+
+The Agrowth frontend (`agrowth` repo) provides a modern React/Next.js interface that consumes these DocTypes via REST API.
+
+For integration details, APIs, and frontend usage:
+- **Frontend Documentation:** [Agrowth GANADERIA Module](https://github.com/jvan0/agrowth/blob/main/docs/modules/GANADERIA.md)
+- **Frontend Repository:** https://github.com/jvan0/agrowth
+- **Integration Status:** [GANADERIA_INTEGRATIONS.md](https://github.com/jvan0/agrowth/blob/main/docs/modules/GANADERIA_INTEGRATIONS.md)
+
+### APIs Consumed by Frontend
+
+| Endpoint | DocType | Usage |
+|----------|---------|-------|
+| `/api/resource/Herd Batch` | Herd Batch | Stock management |
+| `/api/resource/Animal` | Animal | Individual animal tracking |
+| `/api/resource/Livestock Settlement` | Settlement | Purchase liquidations |
+| `/api/resource/Livestock Dispatch` | Dispatch | Sales dispatch |
+| `/api/resource/Livestock Movement` | Movement | Stock movements |
+| `/api/resource/Livestock Health` | Health | Sanitary events |
+| `/api/resource/Livestock Weighing` | Weighing | Weight records |
+
 ## Implementation Status
 
 | Stage | Feature | Status |
