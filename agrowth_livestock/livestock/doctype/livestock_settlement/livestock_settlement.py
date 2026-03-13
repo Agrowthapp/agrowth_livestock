@@ -4,7 +4,8 @@ from frappe import _
 from agrowth_livestock.utils import (
     calculate_withholdings,
     add_withholdings_to_invoice,
-    get_iva_rate
+    get_company_default_account,
+    get_iva_rate,
 )
 
 
@@ -89,7 +90,7 @@ class LivestockSettlement(Document):
         # Agregar IVA como taxes
         if self.total_iva > 0:
             # Buscar cuenta de IVA por defecto
-            iva_account = frappe.db.get_value("Company", self.company, "default_vat_input_account")
+            iva_account = get_company_default_account(self.company, "default_vat_input_account")
             if iva_account:
                 pi.append("taxes", {
                     "charge_type": "On Net Total",
@@ -107,8 +108,7 @@ class LivestockSettlement(Document):
         pi.insert(ignore_permissions=True)
         
         # Actualizar referencia
-        self.purchase_invoice = pi.name
-        self.save(ignore_permissions=True)
+        self.db_set("purchase_invoice", pi.name, update_modified=False)
 
         frappe.msgprint(_("Factura de Compra {0} creada en estado draft").format(pi.name))
 
@@ -120,10 +120,12 @@ class LivestockSettlement(Document):
         batch = frappe.new_doc("Herd Batch")
         batch.company = self.company
         batch.warehouse = self.warehouse
-        batch.origin_type = "Purchase"
+        batch.origin_type = "Livestock Settlement"
         batch.origin_document = self.name
         batch.arrival_date = self.posting_date
-        batch.status = "Active"
+        batch.status = "Pending Entry"
+        batch.confirmation_status = "Pending"
+        batch.confirmation_mode = "None"
         batch.notes = f"Liquidación: {self.name}"
 
         for line in self.items:
@@ -140,8 +142,7 @@ class LivestockSettlement(Document):
         batch.insert(ignore_permissions=True)
 
         # Actualizar referencia
-        self.herd_batch = batch.name
-        self.save(ignore_permissions=True)
+        self.db_set("herd_batch", batch.name, update_modified=False)
 
         frappe.msgprint(_("Tropa {0} creada").format(batch.name))
 
@@ -166,8 +167,7 @@ class LivestockSettlement(Document):
         se.insert(ignore_permissions=True)
 
         # Actualizar referencia
-        self.stock_entry = se.name
-        self.save(ignore_permissions=True)
+        self.db_set("stock_entry", se.name, update_modified=False)
 
         frappe.msgprint(_("Entrada de Stock {0} creada en estado draft").format(se.name))
 
@@ -182,8 +182,7 @@ class LivestockSettlement(Document):
                 # Si está draft, eliminar
                 frappe.delete_doc("Purchase Invoice", pi.name)
             
-            self.purchase_invoice = None
-            self.save(ignore_permissions=True)
+            self.db_set("purchase_invoice", None, update_modified=False)
 
     def cancel_stock_entry(self):
         """Cancela la Entrada de Stock"""
@@ -195,8 +194,7 @@ class LivestockSettlement(Document):
             elif se.docstatus == 0:
                 frappe.delete_doc("Stock Entry", se.name)
             
-            self.stock_entry = None
-            self.save(ignore_permissions=True)
+            self.db_set("stock_entry", None, update_modified=False)
 
     def cancel_herd_batch(self):
         """Cancela/eliminap Herd Batch"""
@@ -206,5 +204,4 @@ class LivestockSettlement(Document):
             batch.status = "Closed"
             batch.save(ignore_permissions=True)
             
-            self.herd_batch = None
-            self.save(ignore_permissions=True)
+            self.db_set("herd_batch", None, update_modified=False)
