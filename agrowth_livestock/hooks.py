@@ -118,4 +118,7 @@ doc_events = {
 
 after_install = "agrowth_livestock.workspace_setup.ensure_workspaces"
 
-after_migrate = ["agrowth_livestock.workspace_setup.ensure_workspaces"]
+after_migrate = [
+    "agrowth_livestock.workspace_setup.ensure_child_table_schema",
+    "agrowth_livestock.workspace_setup.ensure_workspaces",
+]

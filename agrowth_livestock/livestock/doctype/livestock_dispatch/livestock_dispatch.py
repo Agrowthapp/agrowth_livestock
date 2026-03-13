@@ -4,7 +4,8 @@ from frappe import _
 from agrowth_livestock.utils import (
     calculate_withholdings,
     add_withholdings_to_invoice,
-    get_iva_rate
+    get_company_default_account,
+    get_iva_rate,
 )
 
 
@@ -149,7 +150,7 @@ class LivestockDispatch(Document):
 
         # Add VAT as taxes
         if self.total_iva > 0:
-            vat_account = frappe.db.get_value("Company", self.company, "default_vat_output_account")
+            vat_account = get_company_default_account(self.company, "default_vat_output_account")
             if vat_account:
                 si.append("taxes", {
                     "charge_type": "On Net Total",
@@ -167,8 +168,7 @@ class LivestockDispatch(Document):
         si.insert(ignore_permissions=True)
 
         # Update reference
-        self.sales_invoice = si.name
-        self.save(ignore_permissions=True)
+        self.db_set("sales_invoice", si.name, update_modified=False)
 
         frappe.msgprint(_("Factura de Venta {0} creada en estado draft").format(si.name))
 
@@ -193,8 +193,7 @@ class LivestockDispatch(Document):
         se.insert(ignore_permissions=True)
 
         # Update reference
-        self.stock_entry = se.name
-        self.save(ignore_permissions=True)
+        self.db_set("stock_entry", se.name, update_modified=False)
 
         frappe.msgprint(_("Salida de Stock {0} creada en estado draft").format(se.name))
 
@@ -246,8 +245,7 @@ class LivestockDispatch(Document):
                 # If draft, delete
                 frappe.delete_doc("Sales Invoice", si.name)
 
-            self.sales_invoice = None
-            self.save(ignore_permissions=True)
+            self.db_set("sales_invoice", None, update_modified=False)
 
     def cancel_stock_entry(self):
         """Cancel the Stock Entry"""
@@ -259,8 +257,7 @@ class LivestockDispatch(Document):
             elif se.docstatus == 0:
                 frappe.delete_doc("Stock Entry", se.name)
 
-            self.stock_entry = None
-            self.save(ignore_permissions=True)
+            self.db_set("stock_entry", None, update_modified=False)
 
     def restore_herd_batch(self):
         """Restore herd batch to previous state"""
