@@ -28,7 +28,8 @@ fixtures = []
 # Migration
 # ----------
 migration_patches = {
-    "0.0.1": ["agrowth_livestock.patches.v1_create_invoice_custom_fields.execute"]
+    "0.0.1": ["agrowth_livestock.patches.v1_create_invoice_custom_fields.execute"],
+    "0.0.2": ["agrowth_livestock.patches.v2_create_corral_fields.execute"],
 }
 
 # Document Events
@@ -118,4 +119,7 @@ doc_events = {
 
 after_install = "agrowth_livestock.workspace_setup.ensure_workspaces"
 
-after_migrate = ["agrowth_livestock.workspace_setup.ensure_workspaces"]
+after_migrate = [
+    "agrowth_livestock.workspace_setup.ensure_child_table_schema",
+    "agrowth_livestock.workspace_setup.ensure_workspaces",
+]

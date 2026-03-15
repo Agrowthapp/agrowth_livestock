@@ -4,7 +4,8 @@ from frappe import _
 from agrowth_livestock.utils import (
     calculate_withholdings,
     add_withholdings_to_invoice,
-    get_iva_rate
+    get_company_default_account,
+    get_iva_rate,
 )
 
 
@@ -58,6 +59,7 @@ class LivestockSettlement(Document):
         self.create_purchase_invoice()
         self.create_herd_batch()
         self.create_stock_entry()
+        self.create_livestock_intake()  # NEW: create pending intake
 
     def on_cancel(self):
         self.cancel_purchase_invoice()
@@ -89,7 +91,7 @@ class LivestockSettlement(Document):
         # Agregar IVA como taxes
         if self.total_iva > 0:
             # Buscar cuenta de IVA por defecto
-            iva_account = frappe.db.get_value("Company", self.company, "default_vat_input_account")
+            iva_account = get_company_default_account(self.company, "default_vat_input_account")
             if iva_account:
                 pi.append("taxes", {
                     "charge_type": "On Net Total",
@@ -107,8 +109,7 @@ class LivestockSettlement(Document):
         pi.insert(ignore_permissions=True)
         
         # Actualizar referencia
-        self.purchase_invoice = pi.name
-        self.save(ignore_permissions=True)
+        self.db_set("purchase_invoice", pi.name, update_modified=False)
 
         frappe.msgprint(_("Factura de Compra {0} creada en estado draft").format(pi.name))
 
@@ -120,10 +121,12 @@ class LivestockSettlement(Document):
         batch = frappe.new_doc("Herd Batch")
         batch.company = self.company
         batch.warehouse = self.warehouse
-        batch.origin_type = "Purchase"
+        batch.origin_type = "Livestock Settlement"
         batch.origin_document = self.name
         batch.arrival_date = self.posting_date
-        batch.status = "Active"
+        batch.status = "Pending Entry"
+        batch.confirmation_status = "Pending"
+        batch.confirmation_mode = "None"
         batch.notes = f"Liquidación: {self.name}"
 
         for line in self.items:
@@ -140,8 +143,7 @@ class LivestockSettlement(Document):
         batch.insert(ignore_permissions=True)
 
         # Actualizar referencia
-        self.herd_batch = batch.name
-        self.save(ignore_permissions=True)
+        self.db_set("herd_batch", batch.name, update_modified=False)
 
         frappe.msgprint(_("Tropa {0} creada").format(batch.name))
 
@@ -166,8 +168,7 @@ class LivestockSettlement(Document):
         se.insert(ignore_permissions=True)
 
         # Actualizar referencia
-        self.stock_entry = se.name
-        self.save(ignore_permissions=True)
+        self.db_set("stock_entry", se.name, update_modified=False)
 
         frappe.msgprint(_("Entrada de Stock {0} creada en estado draft").format(se.name))
 
@@ -182,8 +183,7 @@ class LivestockSettlement(Document):
                 # Si está draft, eliminar
                 frappe.delete_doc("Purchase Invoice", pi.name)
             
-            self.purchase_invoice = None
-            self.save(ignore_permissions=True)
+            self.db_set("purchase_invoice", None, update_modified=False)
 
     def cancel_stock_entry(self):
         """Cancela la Entrada de Stock"""
@@ -195,8 +195,7 @@ class LivestockSettlement(Document):
             elif se.docstatus == 0:
                 frappe.delete_doc("Stock Entry", se.name)
             
-            self.stock_entry = None
-            self.save(ignore_permissions=True)
+            self.db_set("stock_entry", None, update_modified=False)
 
     def cancel_herd_batch(self):
         """Cancela/eliminap Herd Batch"""
@@ -206,5 +205,49 @@ class LivestockSettlement(Document):
             batch.status = "Closed"
             batch.save(ignore_permissions=True)
             
-            self.herd_batch = None
-            self.save(ignore_permissions=True)
+            self.db_set("herd_batch", None, update_modified=False)
+    
+    def create_livestock_intake(self):
+        """
+        Creates a pending Livestock Intake when settlement is submitted.
+        This is the NEW operational layer between commercial expectation and physical receipt.
+        """
+        # Check if doctype exists (backward compatibility)
+        if not frappe.db.exists("DocType", "Livestock Intake"):
+            frappe.log_error("Livestock Intake doctype not found. Skipping intake creation.")
+            return
+        
+        intake = frappe.new_doc("Livestock Intake")
+        intake.company = self.company
+        intake.settlement = self.name
+        intake.herd_batch = self.herd_batch
+        intake.warehouse = self.warehouse
+        intake.posting_date = self.posting_date
+        intake.status = "Pendiente de ingreso"
+        intake.confirmation_mode = "None"
+        
+        # Calculate expected heads from settlement lines
+        expected_heads = sum(line.qty_heads for line in self.items)
+        intake.expected_heads = expected_heads
+        intake.received_heads = 0
+        intake.missing_heads = 0
+        intake.surplus_heads = 0
+        intake.problem_heads = 0
+        intake.has_discrepancy = False
+        
+        # Create intake lines from settlement lines
+        for line in self.items:
+            intake_line = intake.append("lines")
+            intake_line.item_code = line.item_code
+            intake_line.species = line.species or "Bovino"
+            intake_line.category = line.category or "Otro"
+            intake_line.expected_heads = line.qty_heads
+            intake_line.received_heads = 0
+            intake_line.missing_heads = 0
+            intake_line.surplus_heads = 0
+        
+        intake.notes = f"Generado automáticamente desde liquidación {self.name}"
+        
+        intake.insert(ignore_permissions=True)
+        
+        frappe.msgprint(_("Ingreso pendiente {0} creado").format(intake.name))
