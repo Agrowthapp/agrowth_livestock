@@ -15,6 +15,9 @@
   "warehouse",
   "column_break_3",
   "status",
+  "confirmation_status",
+  "confirmation_mode",
+  "confirmed_at",
   "arrival_date",
   "origin_section",
   "origin_type",
@@ -50,9 +53,30 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Estado",
-   "options": "Active\nSold\nSplit\nMerged\nClosed",
+   "options": "Pending Entry\nActive\nSold\nSplit\nMerged\nClosed",
    "reqd": 1,
-   "default": "Active"
+   "default": "Pending Entry"
+  },
+  {
+   "fieldname": "confirmation_status",
+   "fieldtype": "Select",
+   "label": "Estado de Confirmación",
+   "options": "Pending\nCompleted",
+   "default": "Pending",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "confirmation_mode",
+   "fieldtype": "Select",
+   "label": "Modo de Confirmación",
+   "options": "None\nManual\nCSV EID",
+   "default": "None"
+  },
+  {
+   "fieldname": "confirmed_at",
+   "fieldtype": "Datetime",
+   "label": "Confirmado el",
+   "read_only": 1
   },
   {
    "fieldname": "arrival_date",
@@ -69,9 +93,9 @@
    "fieldname": "origin_type",
    "fieldtype": "Select",
    "label": "Tipo de Origen",
-   "options": "Purchase\nInternal\nMixed\nOther",
+   "options": "Livestock Settlement\nLivestock Dispatch\nPurchase Invoice\nSales Invoice\nStock Entry\nOther",
    "reqd": 1,
-   "default": "Purchase"
+   "default": "Other"
   },
   {
    "fieldname": "origin_document",
@@ -120,6 +144,96 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tenant Owner",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Master Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Livestock Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Livestock User",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User"
   }
  ],
  "sort_field": "modified",

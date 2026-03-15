@@ -206,7 +206,6 @@ class LivestockSettlement(Document):
             batch.save(ignore_permissions=True)
             
             self.db_set("herd_batch", None, update_modified=False)
-    
     def create_livestock_intake(self):
         """
         Creates a pending Livestock Intake when settlement is submitted.
