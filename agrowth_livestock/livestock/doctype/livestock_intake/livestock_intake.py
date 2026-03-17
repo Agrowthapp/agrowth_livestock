@@ -6,6 +6,7 @@ import uuid
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import cint
 
 PLACEHOLDER_PREFIX = "SIN-CARAVANA-"
 
@@ -41,10 +42,30 @@ class LivestockIntake(Document):
 	
 	def validate(self):
 		"""Validate intake before save"""
+		self.ensure_animals_seeded()
 		self.validate_animal_statuses()
 		self.sync_received_heads_from_animals()
 		self.calculate_discrepancies()
 		self.update_discrepancy_flag()
+
+	def ensure_animals_seeded(self):
+		"""
+		If the intake has expected heads but no animal rows yet, seed placeholder rows so
+		operators can complete them manually or overwrite them via EID upload.
+		"""
+		expected = cint(self.expected_heads or 0)
+		if expected <= 0:
+			return
+
+		if self.animals and len(self.animals) > 0:
+			return
+
+		for _ in range(expected):
+			self.append("animals", {
+				"ear_tag_id": generate_placeholder_ear_tag(),
+				"status": "Normal",
+				"observation": "",
+			})
 
 	def validate_animal_statuses(self):
 		for animal in self.animals or []:
@@ -78,6 +99,7 @@ class LivestockIntake(Document):
 		"""Mark intake as having discrepancy if expected != received"""
 		self.has_discrepancy = (self.expected_heads != self.received_heads)
 	
+	@frappe.whitelist()
 	def confirm_intake(self, user, mode="None"):
 		"""
 		Confirm the intake and activate related herd batch.
@@ -97,7 +119,7 @@ class LivestockIntake(Document):
 		self.confirmed_at = frappe.utils.now()
 		self.confirmation_mode = mode
 
-		# Activate herd batch if exists
+ 		# Activate herd batch if exists
 		if self.herd_batch:
 			batch = frappe.get_doc("Herd Batch", self.herd_batch)
 			batch.status = "Active"
@@ -105,6 +127,10 @@ class LivestockIntake(Document):
 			batch.confirmation_mode = mode
 			batch.confirmed_at = frappe.utils.now()
 			batch.save(ignore_permissions=True)
+
+		# Materialize received animals into Animal docs before assigning corrales.
+		# Without this, stock has active Herd Batches but no real animals to drill down or move.
+		self._ensure_animals_exist()
 
 		# Assign animals to the default Acostumbramiento corral.
 		# Must run before stock entry submission so warehouse is set correctly.
@@ -139,6 +165,71 @@ class LivestockIntake(Document):
 			limit=1,
 		)
 		return results[0]["name"] if results else None
+
+	def _infer_category_for_animal(self, animal_row):
+		if animal_row.get("category"):
+			return animal_row.get("category")
+
+		batch_line_ref = animal_row.get("batch_line_ref")
+		if batch_line_ref and self.lines:
+			for line in self.lines:
+				if line.name == batch_line_ref and line.category:
+					return line.category
+
+		if self.lines and self.lines[0].category:
+			return self.lines[0].category
+
+		return "Otro"
+
+	def _infer_weight_for_animal(self, animal_row):
+		weight = animal_row.get("weight")
+		if weight:
+			return weight
+
+		batch_line_ref = animal_row.get("batch_line_ref")
+		if batch_line_ref and self.lines:
+			for line in self.lines:
+				line_weight = getattr(line, "avg_weight", None)
+				if line.name == batch_line_ref and line_weight:
+					return line_weight
+
+		if self.lines:
+			first_weight = getattr(self.lines[0], "avg_weight", None)
+			if first_weight:
+				return first_weight
+
+		return None
+
+	def _ensure_animals_exist(self):
+		"""
+		Create missing Animal docs for all received animals staged on the intake.
+		This is the canonical point where physical animals become stock-traceable entities.
+		"""
+		for animal_row in self.animals or []:
+			status = animal_row.status or "Normal"
+			if status not in RECEIVED_ANIMAL_STATUSES:
+				continue
+
+			ear_tag_id = (animal_row.ear_tag_id or "").strip()
+			if not ear_tag_id:
+				continue
+
+			if frappe.db.exists("Animal", {"ear_tag_id": ear_tag_id}):
+				continue
+
+			animal = frappe.new_doc("Animal")
+			animal.ear_tag_id = ear_tag_id
+			animal.species = "Bovino"
+			animal.sex = animal_row.get("sex") or "Desconocido"
+			animal.current_category = self._infer_category_for_animal(animal_row)
+			animal.current_weight = self._infer_weight_for_animal(animal_row)
+			animal.company = self.company
+			animal.current_herd_batch = self.herd_batch
+			animal.warehouse = self.warehouse
+			animal.origin_type = "Purchase"
+			animal.origin_document = self.settlement
+			animal.disabled = 0
+			animal.insert(ignore_permissions=True)
 
 	def _assign_animals_to_default_corral(self, user, company):
 		"""
@@ -209,6 +300,7 @@ class LivestockIntake(Document):
 			f"confirmed by {user}"
 		)
 
+	@frappe.whitelist()
 	def revert_intake(self, user, reason):
 		"""
 		Revert a confirmed intake back to pending state.
