@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "beta": 0,
+ "creation": "2026-03-19 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "species",
+  "category",
+  "column_break_4",
+  "qty_heads",
+  "avg_weight",
+  "total_weight",
+  "column_break_8",
+  "price_mode",
+  "unit_price",
+  "amount",
+  "tax_rate",
+  "tax_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artículo",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "species",
+   "fieldtype": "Select",
+   "label": "Especie",
+   "options": "Bovino\nPorcino\nOvino\nCaprino\nOtro"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Categoría",
+   "options": "Ternero\nNovillo\nVaquillona\nVaca\nToro\nOtro"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty_heads",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Cabezas",
+   "reqd": 1
+  },
+  {
+   "fieldname": "avg_weight",
+   "fieldtype": "Float",
+   "label": "Peso Promedio (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "total_weight",
+   "fieldtype": "Float",
+   "formula": "qty_heads * avg_weight",
+   "label": "Peso Total (kg)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "price_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Modo Precio",
+   "options": "Por Cabeza\nPor Kg",
+   "reqd": 1,
+   "default": "Por Cabeza"
+  },
+  {
+   "fieldname": "unit_price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Precio Unitario",
+   "options": "currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "formula": "qty_heads * unit_price",
+   "in_list_view": 1,
+   "label": "Importe",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Float",
+   "label": "% IVA",
+   "precision": "2",
+   "default": "10.5"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Currency",
+   "formula": "amount * (tax_rate / 100)",
+   "label": "IVA",
+   "options": "currency",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-19 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Sales Liquidation Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

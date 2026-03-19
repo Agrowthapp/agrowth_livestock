@@ -1,10 +1,10 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format: DVD-{YYYY}-{####}",
+ "autoname": "format: LQL-{YYYY}-{####}",
  "beta": 0,
  "build_meta_for": 0,
- "creation": "2026-02-13 00:00:00.000000",
+ "creation": "2026-03-19 00:00:00.000000",
  "docstatus": 0,
  "doctype": "DocType",
  "document_type": "Document",
@@ -15,15 +15,13 @@
   "customer",
   "posting_date",
   "column_break_3",
-  "mode",
-  "herd_batch",
-  "livestock_settlement",
+  "document_number",
+  "point_of_sale",
   "warehouse_section",
   "warehouse",
   "province",
   "column_break_9",
   "withholding_profile",
-  "total_heads",
   "line_section",
   "items",
   "totals_section",
@@ -31,10 +29,13 @@
   "total_iva",
   "total_retenciones",
   "column_break_22",
+  "total_comisiones",
   "total_neto",
+  "reconciliation_section",
+  "reconciliation_status",
+  "linked_dispatch",
   "generated_section",
-  "sales_invoice",
-  "stock_entry"
+  "sales_invoice"
  ],
  "fields": [
   {
@@ -65,70 +66,52 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "mode",
-   "fieldtype": "Select",
-   "label": "Modo",
-   "options": "Full Batch\nMixed",
-   "reqd": 1,
-   "default": "Full Batch"
+   "fieldname": "document_number",
+   "fieldtype": "Data",
+   "label": "Número de Comprobante"
   },
-   {
-    "fieldname": "herd_batch",
-    "fieldtype": "Link",
-    "label": "Tropa (Completa)",
-    "options": "Herd Batch"
-   },
-   {
-    "fieldname": "livestock_settlement",
-    "fieldtype": "Link",
-    "label": "Liquidación de Venta",
-    "options": "Livestock Sales Liquidation"
-   },
-   {
-    "fieldname": "warehouse_section",
+  {
+   "fieldname": "point_of_sale",
+   "fieldtype": "Data",
+   "label": "Punto de Venta"
+  },
+  {
+   "fieldname": "warehouse_section",
    "fieldtype": "Section Break",
-   "label": "Origen"
+   "label": "Origen / Destino"
   },
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Depósito",
-   "options": "Warehouse",
-   "reqd": 1
+   "options": "Warehouse"
   },
   {
    "fieldname": "province",
    "fieldtype": "Select",
    "label": "Provincia",
-   "options": "Buenos Aires\nCABA\nCatamarca\nChaco\nChubut\nCórdoba\nCorrientes\nEntre Ríos\nFormosa\nJujuy\nLa Pampa\nLa Rioja\nMendoza\nMisiones\nNeuquén\nRío Negro\nSalta\nSan Juan\nSan Luis\nSanta Cruz\nSanta Fe\nSantiago del Estero\nTierra del Fuego\nTucumán",
-   "reqd": 1
+   "options": "Buenos Aires\nCABA\nCatamarca\nChaco\nChubut\nCórdoba\nCorrientes\nEntre Ríos\nFormosa\nJujuy\nLa Pampa\nLa Rioja\nMendoza\nMisiones\nNeuquén\nRío Negro\nSalta\nSan Juan\nSan Luis\nSanta Cruz\nSanta Fe\nSantiago del Estero\nTierra del Fuego\nTucumán"
   },
   {
    "fieldname": "column_break_9",
    "fieldtype": "Column Break"
   },
-   {
-    "fieldname": "withholding_profile",
-    "fieldtype": "Link",
-    "label": "Perfil de Retenciones",
-    "options": "Withholding Profile"
-   },
-   {
-    "fieldname": "total_heads",
-    "fieldtype": "Int",
-    "label": "Total Cabezas",
-    "read_only": 1
-   },
-   {
-    "fieldname": "line_section",
+  {
+   "fieldname": "withholding_profile",
+   "fieldtype": "Link",
+   "label": "Perfil de Retenciones",
+   "options": "Withholding Profile"
+  },
+  {
+   "fieldname": "line_section",
    "fieldtype": "Section Break",
-   "label": "Líneas"
+   "label": "Líneas Comerciales"
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Artículos",
-   "options": "Livestock Dispatch Line"
+   "options": "Livestock Sales Liquidation Line"
   },
   {
    "fieldname": "totals_section",
@@ -162,10 +145,37 @@
    "fieldtype": "Column Break"
   },
   {
+   "fieldname": "total_comisiones",
+   "fieldtype": "Currency",
+   "label": "Comisiones",
+   "options": "currency"
+  },
+  {
    "fieldname": "total_neto",
    "fieldtype": "Currency",
    "label": "Neto a Cobrar",
    "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reconciliation_section",
+   "fieldtype": "Section Break",
+   "label": "Conciliación con Salida Física"
+  },
+  {
+   "fieldname": "reconciliation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado de Conciliación",
+   "options": "pending_dispatch\npending_settlement\nmatched\ndiscrepancy",
+   "default": "pending_dispatch",
+   "read_only": 1
+  },
+  {
+   "fieldname": "linked_dispatch",
+   "fieldtype": "Link",
+   "label": "Despacho Vinculado",
+   "options": "Livestock Dispatch",
    "read_only": 1
   },
   {
@@ -179,21 +189,14 @@
    "label": "Factura de Venta",
    "options": "Sales Invoice",
    "read_only": 1
-  },
-  {
-   "fieldname": "stock_entry",
-   "fieldtype": "Link",
-   "label": "Salida de Stock",
-   "options": "Stock Entry",
-   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-13 00:00:00.000000",
+ "modified": "2026-03-19 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Livestock",
- "name": "Livestock Dispatch",
+ "name": "Livestock Sales Liquidation",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
@@ -311,17 +314,9 @@
    "read": 1,
    "report": 1,
    "role": "Livestock User"
-  },
-  {
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Stock Manager"
   }
  ],
- "sort_field": "modified",
+ "sort_field": "posting_date",
  "sort_order": "DESC",
- "states": [],
- "title_field": "name",
  "track_changes": 1
 }
