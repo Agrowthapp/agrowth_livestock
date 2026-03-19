@@ -83,7 +83,7 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
-   "label": "Depósito",
+   "label": "Campo / Depósito de origen",
    "options": "Warehouse"
   },
   {
