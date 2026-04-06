@@ -115,7 +115,7 @@ class LivestockDispatch(Document):
     # ── confirm_dispatch (new physical-confirmation path) ─────────────────────
 
     @frappe.whitelist()
-    def confirm_dispatch(self, user, mode="None"):
+    def confirm_dispatch(self, user, mode="None", animals=None):
         """
         Confirm the physical exit of animals.
         Espejo de confirm_intake() — marca animales como Pending Exit,
@@ -123,9 +123,27 @@ class LivestockDispatch(Document):
 
         Called from BFF via run_method after operator enters ear tags.
         The dispatch must be submitted (docstatus=1) at this point.
+
+        animals: optional JSON list of {ear_tag_id, category, status, source_corral}.
+                 When provided, replaces the current animals child table before processing.
         """
         if self.confirmation_status == "Completed":
             frappe.throw(_("Este despacho ya fue confirmado"))
+
+        # If animals are provided by the caller, seed them into the child table
+        if animals:
+            import json as _json
+            animal_rows = _json.loads(animals) if isinstance(animals, str) else animals
+            self.animals = []
+            for row in animal_rows:
+                self.append("animals", {
+                    "ear_tag_id": row.get("ear_tag_id", ""),
+                    "category": row.get("category") or "Otro",
+                    "status": row.get("status") or "Listo para salir",
+                    "source_corral": row.get("source_corral") or "",
+                    "weight": row.get("weight") or 0,
+                    "observation": row.get("observation") or "",
+                })
 
         self.confirmation_status = "Completed"
         self.confirmation_mode = mode
@@ -146,6 +164,7 @@ class LivestockDispatch(Document):
         if self.livestock_settlement:
             self._update_lsl_reconciliation()
 
+        self.flags.ignore_validate_update_after_submit = True
         self.save(ignore_permissions=True)
         return self
 
@@ -172,6 +191,11 @@ class LivestockDispatch(Document):
                 animal_doc = frappe.get_doc("Animal", {"ear_tag_id": ear_tag})
                 if self._get_animal_status(animal_doc) == "Pending Exit":
                     self._set_animal_status(animal_doc, "Active")
+                    # Restore animal to its original corral
+                    source = (animal_row.source_corral or "").strip()
+                    if source:
+                        animal_doc.warehouse = source
+                        animal_doc.save(ignore_permissions=True)
             except frappe.DoesNotExistError:
                 continue
 
@@ -181,6 +205,7 @@ class LivestockDispatch(Document):
         if reason:
             self.revert_reason = reason
 
+        self.flags.ignore_validate_update_after_submit = True
         self.save(ignore_permissions=True)
         return self
 
@@ -251,8 +276,10 @@ class LivestockDispatch(Document):
                 if not animal_row.category and animal_doc.current_category:
                     animal_row.category = animal_doc.current_category
 
-                # Mark animal as Pending Exit when lifecycle state exists
+                # Mark animal as Pending Exit and remove from corral view
                 self._set_animal_status(animal_doc, "Pending Exit")
+                animal_doc.warehouse = None
+                animal_doc.save(ignore_permissions=True)
 
                 # Audit event
                 frappe.get_doc({
@@ -272,7 +299,9 @@ class LivestockDispatch(Document):
     def _submit_dispatch_stock_entry(self, user):
         """
         Submit the Stock Entry (Material Issue) created in on_submit.
-        Same pattern as intake: stock moves at physical confirmation, not at document submit.
+        Before submitting, rebuild SE lines grouped by (category, source_corral) so that
+        stock deducts from the actual corral each animal came from, not the dispatch's
+        default warehouse (which may differ).
         """
         if not self.stock_entry:
             frappe.logger().warning(
@@ -284,7 +313,59 @@ class LivestockDispatch(Document):
         if se.docstatus == 1:
             return  # already submitted
 
+        # Rebuild SE lines using actual source_corral from confirmed animals
+        animal_lines = self._build_stock_lines_by_corral()
+        if animal_lines:
+            se.items = []
+            for line in animal_lines:
+                se_item = se.append("items")
+                se_item.item_code = line["item_code"]
+                se_item.qty = line["qty"]
+                se_item.s_warehouse = line["s_warehouse"]
+                se_item.conversion_factor = 1
+                se_item.allow_zero_valuation_rate = 1
+            se.save(ignore_permissions=True)
+
         se.submit()
+
+    def _build_stock_lines_by_corral(self):
+        """
+        Group confirmed animals by (category, source_corral) and return
+        stock entry lines with the correct source warehouse per group.
+        Returns an empty list if no valid animals found (falls back to default SE lines).
+        """
+        if not self.animals:
+            return []
+
+        corral_category_qty: dict[tuple, int] = {}
+        for animal_row in self.animals:
+            ear_tag = (animal_row.ear_tag_id or "").strip()
+            if not ear_tag or ear_tag.startswith(PLACEHOLDER_PREFIX):
+                continue
+            status = (animal_row.status or "").strip()
+            if status not in READY_ANIMAL_STATUSES:
+                continue
+            category = (animal_row.category or "").strip()
+            s_warehouse = (animal_row.source_corral or self.warehouse or "").strip()
+            if not category or not s_warehouse:
+                continue
+            key = (category, s_warehouse)
+            corral_category_qty[key] = corral_category_qty.get(key, 0) + 1
+
+        if not corral_category_qty:
+            return []
+
+        lines = []
+        for (category, s_warehouse), qty in corral_category_qty.items():
+            item_code = CATEGORY_ITEM_CODE_MAP.get(category)
+            if not item_code:
+                frappe.throw(_("No se encontró artículo ganadero para la categoría {0}").format(category))
+            lines.append({
+                "item_code": item_code,
+                "qty": qty,
+                "s_warehouse": s_warehouse,
+            })
+        return lines
 
     def _update_lsl_reconciliation(self):
         """

@@ -19,120 +19,47 @@ MANAGED_PERMISSION_FIELDS = (
 )
 
 ANIMAL_PERMISSION_BLUEPRINT = [
-    {
-        "role": "System Manager",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "delete": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Tenant Owner",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "delete": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Livestock Manager",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "delete": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Livestock User",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Stock Manager",
-        "read": 1,
-        "report": 1,
-        "print": 1,
-    },
-    {
-        "role": "Stock User",
-        "read": 1,
-        "report": 1,
-        "print": 1,
-    },
+    {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Tenant Owner", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Livestock Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Livestock User", "read": 1, "write": 1, "create": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Stock Manager", "read": 1, "report": 1, "print": 1},
+    {"role": "Stock User", "read": 1, "report": 1, "print": 1},
 ]
 
 ANIMAL_EVENT_PERMISSION_BLUEPRINT = [
-    {
-        "role": "System Manager",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "delete": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Tenant Owner",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "delete": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Livestock Manager",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "delete": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
-    {
-        "role": "Livestock User",
-        "read": 1,
-        "write": 1,
-        "create": 1,
-        "report": 1,
-        "export": 1,
-        "share": 1,
-        "print": 1,
-        "email": 1,
-    },
+    {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Tenant Owner", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Livestock Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+    {"role": "Livestock User", "read": 1, "write": 1, "create": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
 ]
 
 TOP_LEVEL_BLUEPRINTS = {
     "Animal": ANIMAL_PERMISSION_BLUEPRINT,
     "Animal Event": ANIMAL_EVENT_PERMISSION_BLUEPRINT,
+}
+
+CHILD_TABLE_PARENT_PERMISSION_MODE = {
+    "Livestock Dispatch Animal": "mirror_parent_crud",
+}
+
+CHILD_TABLE_ROLE_OVERRIDES = {
+    "Livestock Dispatch Animal": {
+        "Livestock User": {
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "submit": 1,
+            "cancel": 1,
+            "amend": 1,
+            "report": 1,
+            "export": 1,
+            "share": 1,
+            "print": 1,
+            "email": 1,
+        }
+    }
 }
 
 
@@ -171,11 +98,7 @@ def _list_custom_docperms(doctype_name):
 
 
 def _insert_custom_docperm(doctype_name, row):
-    payload = {
-        "doctype": "Custom DocPerm",
-        "parent": doctype_name,
-        **row,
-    }
+    payload = {"doctype": "Custom DocPerm", "parent": doctype_name, **row}
     frappe.get_doc(payload).insert(ignore_permissions=True)
 
 
@@ -193,7 +116,6 @@ def _sync_doctype_permissions(doctype_name, desired_rows):
 
     desired_rows = [_normalize_permission_row(row) for row in desired_rows]
     desired_by_signature = {_permission_signature(row): row for row in desired_rows}
-    managed_signatures = set(desired_by_signature)
     managed_roles = {row["role"] for row in desired_rows}
 
     changed = False
@@ -201,7 +123,7 @@ def _sync_doctype_permissions(doctype_name, desired_rows):
 
     for row in existing_rows:
         signature = _permission_signature(row)
-        if signature in managed_signatures:
+        if signature in desired_by_signature:
             desired = desired_by_signature[signature]
             updates = {}
             for fieldname in ("if_owner", *MANAGED_PERMISSION_FIELDS):
@@ -231,23 +153,13 @@ def _sync_doctype_permissions(doctype_name, desired_rows):
 
 
 def _iter_livestock_child_tables():
-    return frappe.get_all(
-        "DocType",
-        filters={"module": "Livestock", "istable": 1},
-        pluck="name",
-        limit_page_length=0,
-    )
+    return frappe.get_all("DocType", filters={"module": "Livestock", "istable": 1}, pluck="name", limit_page_length=0)
 
 
 
 def _iter_parent_doctypes_for_child(child_doctype):
     parent_doctypes = []
-    for doctype_name in frappe.get_all(
-        "DocType",
-        filters={"module": "Livestock", "istable": 0},
-        pluck="name",
-        limit_page_length=0,
-    ):
+    for doctype_name in frappe.get_all("DocType", filters={"module": "Livestock", "istable": 0}, pluck="name", limit_page_length=0):
         meta = frappe.get_meta(doctype_name)
         for field in meta.fields or []:
             if field.fieldtype in ("Table", "Table MultiSelect") and field.options == child_doctype:
@@ -257,51 +169,59 @@ def _iter_parent_doctypes_for_child(child_doctype):
 
 
 
-def _build_child_table_permission_rows(child_doctype):
-    roles = set()
-    for parent_doctype in _iter_parent_doctypes_for_child(child_doctype):
-        parent_doc = frappe.get_doc("DocType", parent_doctype)
-        for row in parent_doc.permissions or []:
-            if cint(getattr(row, "permlevel", 0) or 0) != 0:
-                continue
-            if cint(getattr(row, "read", 0) or 0) != 1:
-                continue
-            role = getattr(row, "role", None)
-            if role:
-                roles.add(role)
-
-        for row in _list_custom_docperms(parent_doctype):
-            if cint(row.get("read", 0) or 0) != 1:
-                continue
-            role = row.get("role")
-            if role:
-                roles.add(role)
-
-    return [
-        {
-            "role": role,
-            "read": 1,
-            "report": 1,
-            "print": 1,
+def _iter_parent_permission_rows(parent_doctype):
+    parent_doc = frappe.get_doc("DocType", parent_doctype)
+    for row in parent_doc.permissions or []:
+        if cint(getattr(row, "permlevel", 0) or 0) != 0:
+            continue
+        yield {
+            "role": getattr(row, "role", None),
+            **{fieldname: cint(getattr(row, fieldname, 0) or 0) for fieldname in MANAGED_PERMISSION_FIELDS},
         }
-        for role in sorted(roles)
-    ]
+
+    for row in _list_custom_docperms(parent_doctype):
+        yield {"role": row.get("role"), **{fieldname: cint(row.get(fieldname, 0) or 0) for fieldname in MANAGED_PERMISSION_FIELDS}}
+
+
+
+def _build_child_table_permission_rows(child_doctype):
+    mode = CHILD_TABLE_PARENT_PERMISSION_MODE.get(child_doctype, "read_only")
+    rows_by_role = {}
+
+    for parent_doctype in _iter_parent_doctypes_for_child(child_doctype):
+        for row in _iter_parent_permission_rows(parent_doctype):
+            role = row.get("role")
+            if not role or cint(row.get("read", 0) or 0) != 1:
+                continue
+
+            existing = rows_by_role.setdefault(role, {"role": role})
+            if mode == "mirror_parent_crud":
+                allowed_fields = ("read", "write", "create", "delete", "submit", "cancel", "amend", "report", "export", "share", "print", "email")
+                for fieldname in allowed_fields:
+                    existing[fieldname] = max(cint(existing.get(fieldname, 0) or 0), cint(row.get(fieldname, 0) or 0))
+            else:
+                for fieldname in ("read", "report", "print"):
+                    existing[fieldname] = 1
+
+    overrides = CHILD_TABLE_ROLE_OVERRIDES.get(child_doctype, {})
+    for role, override in overrides.items():
+        row = rows_by_role.setdefault(role, {"role": role})
+        for fieldname, value in override.items():
+            row[fieldname] = max(cint(row.get(fieldname, 0) or 0), cint(value or 0))
+
+    return [rows_by_role[role] for role in sorted(rows_by_role)]
 
 
 
 def ensure_livestock_permissions():
     changed = False
-
     for doctype_name, blueprint in TOP_LEVEL_BLUEPRINTS.items():
         changed = _sync_doctype_permissions(doctype_name, blueprint) or changed
-
     for child_doctype in _iter_livestock_child_tables():
         desired_rows = _build_child_table_permission_rows(child_doctype)
         if not desired_rows:
             continue
         changed = _sync_doctype_permissions(child_doctype, desired_rows) or changed
-
     if changed:
         frappe.db.commit()
-
     return changed
