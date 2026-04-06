@@ -9,7 +9,12 @@ app_color = "green"
 app_email = "info@agrowth.app"
 app_license = "MIT"
 
-fixtures = []
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [["name", "in", ["Journal Entry-migration_session"]]],
+    }
+]
 
 # Document Events
 # ------------------
@@ -30,6 +35,7 @@ fixtures = []
 migration_patches = {
     "0.0.1": ["agrowth_livestock.patches.v1_create_invoice_custom_fields.execute"],
     "0.0.2": ["agrowth_livestock.patches.v2_create_corral_fields.execute"],
+    "0.0.3": ["agrowth_livestock.patches.v8_sync_livestock_permissions.execute"],
 }
 
 # Document Events
@@ -122,4 +128,5 @@ after_install = "agrowth_livestock.workspace_setup.ensure_workspaces"
 after_migrate = [
     "agrowth_livestock.workspace_setup.ensure_child_table_schema",
     "agrowth_livestock.workspace_setup.ensure_workspaces",
+    "agrowth_livestock.permissions_setup.ensure_livestock_permissions",
 ]

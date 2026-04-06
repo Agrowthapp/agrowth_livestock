@@ -48,8 +48,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Cliente",
-   "options": "Customer",
-   "reqd": 1
+   "options": "Customer"
   },
   {
    "fieldname": "posting_date",

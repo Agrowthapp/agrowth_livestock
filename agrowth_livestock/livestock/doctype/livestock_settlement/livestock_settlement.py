@@ -1,8 +1,10 @@
 import frappe
 from frappe.model.document import Document
 from frappe import _
+from frappe.utils import flt
 from agrowth_livestock.utils import (
     calculate_withholdings,
+    add_nominal_withholdings_to_invoice,
     add_withholdings_to_invoice,
     get_company_default_account,
     get_iva_rate,
@@ -45,15 +47,19 @@ class LivestockSettlement(Document):
         self.total_bruto = total_bruto
         self.total_iva = total_iva
         
-        # Calculate withholdings if profile exists
-        withholdings = calculate_withholdings(self, total_bruto, "Supplier")
-        total_retenciones = sum(w["amount"] for w in withholdings)
-        
-        self.total_retenciones = total_retenciones
+        manual_iibb = flt(self.retencion_iibb_amount or 0)
+        manual_iigg = flt(self.retencion_iigg_amount or 0)
+        total_retenciones = manual_iibb + manual_iigg
 
-        # Net = Gross + VAT - Withholdings + Commissions
-        self.total_neto = (total_bruto + total_iva - 
-                          total_retenciones + (self.total_comisiones or 0))
+        if total_retenciones <= 0 and self.tax_profile:
+            withholdings = calculate_withholdings(self, total_bruto, "Supplier")
+            total_retenciones = sum(w["amount"] for w in withholdings)
+
+        self.total_retenciones = total_retenciones
+        ajuste_interno = flt(self.ajuste_interno or 0)
+
+        # Net = Gross + VAT - Withholdings - Commissions + Internal Adjustment
+        self.total_neto = (total_bruto + total_iva - total_retenciones - (self.total_comisiones or 0) + ajuste_interno)
 
     def on_submit(self):
         self.create_purchase_invoice()
@@ -101,8 +107,18 @@ class LivestockSettlement(Document):
                     "description": "IVA"
                 })
 
-        # Add withholdings
-        if self.tax_profile and self.total_retenciones > 0:
+        manual_iibb = flt(self.retencion_iibb_amount or 0)
+        manual_iigg = flt(self.retencion_iigg_amount or 0)
+
+        if manual_iibb or manual_iigg:
+            add_nominal_withholdings_to_invoice(
+                pi,
+                company=self.company,
+                iibb_amount=manual_iibb,
+                iigg_amount=manual_iigg,
+                is_purchase=True,
+            )
+        elif self.tax_profile and self.total_retenciones > 0:
             withholdings = calculate_withholdings(self, self.total_bruto, "Supplier")
             add_withholdings_to_invoice(pi, withholdings, is_purchase=True)
 

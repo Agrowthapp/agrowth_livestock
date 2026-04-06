@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "creation": "2026-03-19 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ear_tag_id",
+  "category",
+  "status",
+  "observation",
+  "column_break_4",
+  "source_corral",
+  "weight",
+  "is_duplicate_in_upload",
+  "not_found_in_erp"
+ ],
+ "fields": [
+  {
+   "fieldname": "ear_tag_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Caravana",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Categoría",
+   "options": "Ternero\nNovillo\nVaquillona\nVaca\nToro\nOtro"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Listo para salir\nRetenido\nMuerto antes de salida\nNo encontrado",
+   "default": "Listo para salir",
+   "reqd": 1
+  },
+  {
+   "fieldname": "observation",
+   "fieldtype": "Small Text",
+   "label": "Observación"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source_corral",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Corral de origen",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Peso salida (kg)",
+   "precision": 2
+  },
+  {
+   "fieldname": "is_duplicate_in_upload",
+   "fieldtype": "Check",
+   "label": "Duplicado en carga",
+   "default": 0
+  },
+  {
+   "fieldname": "not_found_in_erp",
+   "fieldtype": "Check",
+   "label": "No encontrada en ERP",
+   "read_only": 1,
+   "default": 0
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-19 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Dispatch Animal",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

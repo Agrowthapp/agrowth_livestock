@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "creation": "2026-03-20 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "row_number",
+  "finance_type",
+  "account_name",
+  "account_resolved",
+  "column_break_1",
+  "currency",
+  "amount",
+  "third_party_section",
+  "third_party_name",
+  "third_party_resolved",
+  "due_date",
+  "document_ref",
+  "validation_section",
+  "validation_status",
+  "validation_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "row_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Fila",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo",
+   "options": "Cash\nBank\nAR\nAP\nEquity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Cuenta (raw)"
+  },
+  {
+   "fieldname": "account_resolved",
+   "fieldtype": "Data",
+   "label": "Cuenta ERPNext",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Data",
+   "label": "Moneda",
+   "default": "ARS"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Importe",
+   "options": "currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "third_party_section",
+   "fieldtype": "Section Break",
+   "label": "Tercero (AR / AP)"
+  },
+  {
+   "fieldname": "third_party_name",
+   "fieldtype": "Data",
+   "label": "Tercero (raw)"
+  },
+  {
+   "fieldname": "third_party_resolved",
+   "fieldtype": "Data",
+   "label": "Tercero ERPNext",
+   "read_only": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Vencimiento"
+  },
+  {
+   "fieldname": "document_ref",
+   "fieldtype": "Data",
+   "label": "Referencia de Documento"
+  },
+  {
+   "fieldname": "validation_section",
+   "fieldtype": "Section Break",
+   "label": "Validación"
+  },
+  {
+   "fieldname": "validation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Pending\nOK\nWarning\nError",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "validation_message",
+   "fieldtype": "Small Text",
+   "label": "Mensaje",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Migration Finance Row",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

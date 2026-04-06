@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field: ear_tag_id",
+ "autoname": "field:ear_tag_id",
  "beta": 0,
  "build_meta_for": 0,
  "creation": "2026-02-13 00:00:00.000000",
@@ -20,7 +20,9 @@
   "current_category",
   "birth_date",
   "current_weight",
+  "disabled",
   "location_section",
+  "company",
   "current_herd_batch",
   "warehouse",
   "column_break_14",
@@ -87,9 +89,24 @@
    "precision": "2"
   },
   {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Deshabilitado"
+  },
+  {
    "fieldname": "location_section",
    "fieldtype": "Section Break",
    "label": "Ubicación"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "current_herd_batch",
@@ -116,7 +133,7 @@
    "fieldname": "origin_type",
    "fieldtype": "Select",
    "label": "Tipo de Origen",
-   "options": "Purchase\nBirth\nTransfer",
+   "options": "Livestock Settlement\nLivestock Dispatch\nPurchase Invoice\nSales Invoice\nStock Entry\nBirth\nTransfer\nOther",
    "reqd": 1
   },
   {
@@ -158,6 +175,53 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tenant Owner",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Livestock Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Livestock User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User"
   }
  ],
  "sort_field": "modified",

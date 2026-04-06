@@ -76,7 +76,7 @@ class LivestockDispatch(Document):
         self.total_iva = total_iva
 
         # Calculate withholdings if profile exists
-        withholdings = calculate_withholdings(self, total_bruto, "Customer")
+        withholdings = calculate_withholdings(self, total_bruto, "Customer") if self.customer else []
         total_retenciones = sum(w["amount"] for w in withholdings)
         
         self.total_retenciones = total_retenciones
@@ -88,7 +88,8 @@ class LivestockDispatch(Document):
         if self.mode == "Full Batch":
             self.populate_from_batch()
 
-        self.create_sales_invoice()
+        if self.customer:
+            self.create_sales_invoice()
         self.create_stock_entry()
         self.update_herd_batch()
 
@@ -160,7 +161,7 @@ class LivestockDispatch(Document):
                 })
 
         # Add withholdings
-        if self.withholding_profile and self.total_retenciones > 0:
+        if self.customer and self.withholding_profile and self.total_retenciones > 0:
             withholdings = calculate_withholdings(self, self.total_bruto, "Customer")
             add_withholdings_to_invoice(si, withholdings, is_purchase=False)
 
@@ -189,6 +190,7 @@ class LivestockDispatch(Document):
             se_item.qty = line.qty_heads
             se_item.s_warehouse = self.warehouse
             se_item.conversion_factor = 1
+            se_item.allow_zero_valuation_rate = 1
 
         se.insert(ignore_permissions=True)
 

@@ -16,6 +16,7 @@
   "posting_date",
   "column_break_3",
   "document_number",
+  "display_name",
   "point_of_sale",
   "warehouse_section",
   "warehouse",
@@ -28,9 +29,12 @@
   "totals_section",
   "total_bruto",
   "total_iva",
+  "retencion_iibb_amount",
+  "retencion_iigg_amount",
   "total_retenciones",
   "column_break_22",
   "total_comisiones",
+  "ajuste_interno",
   "total_neto",
   "generated_section",
   "purchase_invoice",
@@ -70,6 +74,11 @@
    "fieldtype": "Data",
    "label": "Número de Documento",
    "reqd": 1
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Nombre Visible"
   },
   {
    "fieldname": "point_of_sale",
@@ -142,6 +151,18 @@
    "read_only": 1
   },
   {
+   "fieldname": "retencion_iibb_amount",
+   "fieldtype": "Currency",
+   "label": "Retención IIBB",
+   "options": "currency"
+  },
+  {
+   "fieldname": "retencion_iigg_amount",
+   "fieldtype": "Currency",
+   "label": "Retención IIGG",
+   "options": "currency"
+  },
+  {
    "fieldname": "total_retenciones",
    "fieldtype": "Currency",
    "label": "Retenciones",
@@ -156,6 +177,12 @@
    "fieldname": "total_comisiones",
    "fieldtype": "Currency",
    "label": "Comisiones",
+   "options": "currency"
+  },
+  {
+   "fieldname": "ajuste_interno",
+   "fieldtype": "Currency",
+   "label": "Ajuste Interno",
    "options": "currency"
   },
   {
@@ -326,6 +353,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "name",
+ "title_field": "display_name",
  "track_changes": 1
 }

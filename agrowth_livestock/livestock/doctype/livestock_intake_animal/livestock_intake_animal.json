@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "creation": "2026-03-14 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ear_tag_id",
+  "status",
+  "observation",
+  "column_break_3",
+  "weight",
+  "batch_line_ref",
+  "is_duplicate_in_upload",
+  "matches_existing_animal"
+ ],
+ "fields": [
+  {
+   "fieldname": "ear_tag_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Caravana",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Normal\nLastimado\nProblema sanitario\nMuerto al arribo\nNo llegó\nRechazado\nBajo observación",
+   "default": "Normal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "observation",
+   "fieldtype": "Small Text",
+   "label": "Observación"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Peso (kg)",
+   "precision": 2
+  },
+  {
+   "fieldname": "batch_line_ref",
+   "fieldtype": "Data",
+   "label": "Ref línea batch"
+  },
+  {
+   "fieldname": "is_duplicate_in_upload",
+   "fieldtype": "Check",
+   "label": "Duplicado en carga",
+   "default": 0
+  },
+  {
+   "fieldname": "matches_existing_animal",
+   "fieldtype": "Data",
+   "label": "Coincide con animal existente",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Intake Animal",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

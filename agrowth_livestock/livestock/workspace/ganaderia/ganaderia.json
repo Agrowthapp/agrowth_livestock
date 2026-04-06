@@ -1,0 +1,166 @@
+{
+ "app": "agrowth_livestock",
+ "charts": [],
+ "content": "[{\"id\":\"ganado_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Ganadería</b></span>\",\"col\":12}},{\"id\":\"ganado_card\",\"type\":\"card\",\"data\":{\"card_name\":\"Ganado\",\"col\":4}},{\"id\":\"operaciones_card\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":4}},{\"id\":\"configuracion_card\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuración\",\"col\":4}}]",
+ "creation": "2026-03-09 16:30:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "fa fa-leanpub",
+ "idx": 1,
+ "is_hidden": 0,
+ "label": "Ganadería",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Ganado",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Animal",
+   "link_count": 0,
+   "link_to": "Animal",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Herd Batch",
+   "link_count": 0,
+   "link_to": "Herd Batch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Herd Batch Line",
+   "link_count": 0,
+   "link_to": "Herd Batch Line",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Livestock Reclassification",
+   "link_count": 0,
+   "link_to": "Livestock Reclassification",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operaciones",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Animal Event",
+   "link_count": 0,
+   "link_to": "Animal Event",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Livestock Settlement",
+   "link_count": 0,
+   "link_to": "Livestock Settlement",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Livestock Settlement Line",
+   "link_count": 0,
+   "link_to": "Livestock Settlement Line",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Livestock Dispatch",
+   "link_count": 0,
+   "link_to": "Livestock Dispatch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Livestock Dispatch Line",
+   "link_count": 0,
+   "link_to": "Livestock Dispatch Line",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Configuración",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Witholding Profile",
+   "link_count": 0,
+   "link_to": "Witholding Profile",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Withholding Rule",
+   "link_count": 0,
+   "link_to": "Withholding Rule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-03-09 16:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Ganaderia",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [],
+ "title": "Ganadería",
+ "type": "Workspace"
+}

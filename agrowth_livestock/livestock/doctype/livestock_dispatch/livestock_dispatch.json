@@ -24,13 +24,22 @@
   "column_break_9",
   "withholding_profile",
   "total_heads",
+  "confirmation_section",
+  "confirmation_status",
+  "confirmation_mode",
+  "confirmed_by",
+  "confirmed_at",
   "line_section",
+  "animals",
   "items",
   "totals_section",
   "total_bruto",
   "total_iva",
+  "retencion_iibb_amount",
+  "retencion_iigg_amount",
   "total_retenciones",
   "column_break_22",
+  "ajuste_interno",
   "total_neto",
   "generated_section",
   "sales_invoice",
@@ -50,8 +59,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Cliente",
-   "options": "Customer",
-   "reqd": 1
+   "options": "Customer"
   },
   {
    "fieldname": "posting_date",
@@ -72,20 +80,20 @@
    "reqd": 1,
    "default": "Full Batch"
   },
-   {
-    "fieldname": "herd_batch",
-    "fieldtype": "Link",
-    "label": "Tropa (Completa)",
-    "options": "Herd Batch"
-   },
-   {
-    "fieldname": "livestock_settlement",
-    "fieldtype": "Link",
-    "label": "Liquidación de Venta",
-    "options": "Livestock Sales Liquidation"
-   },
-   {
-    "fieldname": "warehouse_section",
+  {
+   "fieldname": "herd_batch",
+   "fieldtype": "Link",
+   "label": "Tropa (Completa)",
+   "options": "Herd Batch"
+  },
+  {
+   "fieldname": "livestock_settlement",
+   "fieldtype": "Link",
+   "label": "Liquidación de Venta",
+   "options": "Livestock Sales Liquidation"
+  },
+  {
+   "fieldname": "warehouse_section",
    "fieldtype": "Section Break",
    "label": "Origen"
   },
@@ -107,22 +115,61 @@
    "fieldname": "column_break_9",
    "fieldtype": "Column Break"
   },
-   {
-    "fieldname": "withholding_profile",
-    "fieldtype": "Link",
-    "label": "Perfil de Retenciones",
-    "options": "Withholding Profile"
-   },
-   {
-    "fieldname": "total_heads",
-    "fieldtype": "Int",
-    "label": "Total Cabezas",
-    "read_only": 1
-   },
-   {
-    "fieldname": "line_section",
+  {
+   "fieldname": "withholding_profile",
+   "fieldtype": "Link",
+   "label": "Perfil de Retenciones",
+   "options": "Withholding Profile"
+  },
+  {
+   "fieldname": "total_heads",
+   "fieldtype": "Int",
+   "label": "Total Cabezas",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmation_section",
    "fieldtype": "Section Break",
-   "label": "Líneas"
+   "label": "Confirmación de salida física"
+  },
+  {
+   "fieldname": "confirmation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado de confirmación",
+   "options": "Pending\nCompleted\nRejected",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmation_mode",
+   "fieldtype": "Select",
+   "label": "Modo de confirmación",
+   "options": "None\nManual\nFile",
+   "default": "None"
+  },
+  {
+   "fieldname": "confirmed_by",
+   "fieldtype": "Data",
+   "label": "Confirmado por",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmed_at",
+   "fieldtype": "Datetime",
+   "label": "Confirmado el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "line_section",
+   "fieldtype": "Section Break",
+   "label": "Caravanas de salida"
+  },
+  {
+   "fieldname": "animals",
+   "fieldtype": "Table",
+   "label": "Animales que salen",
+   "options": "Livestock Dispatch Animal"
   },
   {
    "fieldname": "items",
@@ -151,6 +198,18 @@
    "read_only": 1
   },
   {
+   "fieldname": "retencion_iibb_amount",
+   "fieldtype": "Currency",
+   "label": "Retención IIBB",
+   "options": "currency"
+  },
+  {
+   "fieldname": "retencion_iigg_amount",
+   "fieldtype": "Currency",
+   "label": "Retención IIGG",
+   "options": "currency"
+  },
+  {
    "fieldname": "total_retenciones",
    "fieldtype": "Currency",
    "label": "Retenciones",
@@ -160,6 +219,12 @@
   {
    "fieldname": "column_break_22",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ajuste_interno",
+   "fieldtype": "Currency",
+   "label": "Ajuste Interno",
+   "options": "currency"
   },
   {
    "fieldname": "total_neto",

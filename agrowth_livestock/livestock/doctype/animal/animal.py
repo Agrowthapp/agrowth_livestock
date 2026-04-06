@@ -6,7 +6,21 @@ from frappe import _
 class Animal(Document):
     def validate(self):
         self.validate_ear_tag()
+        self.sync_company()
         self.validate_warehouse()
+
+    def sync_company(self):
+        """Keep company aligned with herd batch or warehouse ownership."""
+        company = None
+
+        if self.current_herd_batch:
+            company = frappe.db.get_value("Herd Batch", self.current_herd_batch, "company")
+
+        if not company and self.warehouse:
+            company = frappe.db.get_value("Warehouse", self.warehouse, "company")
+
+        if company:
+            self.company = company
 
     def validate_ear_tag(self):
         """Validate that ear_tag_id is unique"""
@@ -20,6 +34,11 @@ class Animal(Document):
 
     def validate_warehouse(self):
         """Validate warehouse belongs to company"""
+        if self.company and self.warehouse:
+            warehouse_company = frappe.db.get_value("Warehouse", self.warehouse, "company")
+            if warehouse_company and warehouse_company != self.company:
+                frappe.throw(_("El depósito del animal debe pertenecer a la misma empresa"))
+
         if self.warehouse and self.current_herd_batch:
             batch = frappe.get_doc("Herd Batch", self.current_herd_batch)
             if batch.warehouse != self.warehouse:

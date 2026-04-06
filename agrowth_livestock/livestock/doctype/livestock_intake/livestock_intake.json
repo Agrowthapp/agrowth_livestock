@@ -1,0 +1,307 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format: LI-{YYYY}-{####}",
+ "creation": "2026-03-14 00:00:00.000000",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "settlement",
+  "herd_batch",
+  "warehouse",
+  "column_break_4",
+  "status",
+  "has_discrepancy",
+  "confirmation_mode",
+  "posting_date",
+  "quantities_section",
+  "expected_heads",
+  "received_heads",
+  "column_break_quantities",
+  "missing_heads",
+  "surplus_heads",
+  "problem_heads",
+  "lines_section",
+  "lines",
+  "animals_section",
+  "animals",
+  "confirmation_section",
+  "confirmed_by",
+  "confirmed_at",
+  "column_break_confirmation",
+  "reverted_by",
+  "reverted_at",
+  "revert_reason",
+  "admin_section",
+  "admin_resolution_status",
+  "admin_closed_by",
+  "admin_closed_at",
+  "column_break_admin",
+  "admin_closure_reason",
+  "notes_section",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "settlement",
+   "fieldtype": "Link",
+   "label": "Liquidación",
+   "options": "Livestock Settlement",
+   "reqd": 1
+  },
+  {
+   "fieldname": "herd_batch",
+   "fieldtype": "Link",
+   "label": "Lote",
+   "options": "Herd Batch"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Depósito",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Pendiente de ingreso\nEn recepción\nParcialmente recibido\nConfirmado\nCon discrepancia\nRevertido\nCerrado administrativamente",
+   "reqd": 1,
+   "default": "Pendiente de ingreso"
+  },
+  {
+   "fieldname": "has_discrepancy",
+   "fieldtype": "Check",
+   "label": "Tiene discrepancia",
+   "default": 0
+  },
+  {
+   "fieldname": "confirmation_mode",
+   "fieldtype": "Select",
+   "label": "Modo de confirmación",
+   "options": "None\nManual\nCSV EID",
+   "default": "None"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Fecha de ingreso",
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantities_section",
+   "fieldtype": "Section Break",
+   "label": "Cantidades"
+  },
+  {
+   "fieldname": "expected_heads",
+   "fieldtype": "Int",
+   "label": "Cabezas esperadas",
+   "default": 0
+  },
+  {
+   "fieldname": "received_heads",
+   "fieldtype": "Int",
+   "label": "Cabezas recibidas",
+   "default": 0
+  },
+  {
+   "fieldname": "column_break_quantities",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "missing_heads",
+   "fieldtype": "Int",
+   "label": "Cabezas faltantes",
+   "default": 0,
+   "read_only": 1
+  },
+  {
+   "fieldname": "surplus_heads",
+   "fieldtype": "Int",
+   "label": "Cabezas sobrantes",
+   "default": 0,
+   "read_only": 1
+  },
+  {
+   "fieldname": "problem_heads",
+   "fieldtype": "Int",
+   "label": "Cabezas con problema",
+   "default": 0,
+   "read_only": 1
+  },
+  {
+   "fieldname": "lines_section",
+   "fieldtype": "Section Break",
+   "label": "Líneas por categoría"
+  },
+  {
+   "fieldname": "lines",
+   "fieldtype": "Table",
+   "label": "Líneas",
+   "options": "Livestock Intake Line"
+  },
+  {
+   "fieldname": "animals_section",
+   "fieldtype": "Section Break",
+   "label": "Animales individuales"
+  },
+  {
+   "fieldname": "animals",
+   "fieldtype": "Table",
+   "label": "Animales",
+   "options": "Livestock Intake Animal"
+  },
+  {
+   "fieldname": "confirmation_section",
+   "fieldtype": "Section Break",
+   "label": "Confirmación"
+  },
+  {
+   "fieldname": "confirmed_by",
+   "fieldtype": "Link",
+   "label": "Confirmado por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmed_at",
+   "fieldtype": "Datetime",
+   "label": "Confirmado el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_confirmation",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reverted_by",
+   "fieldtype": "Link",
+   "label": "Revertido por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reverted_at",
+   "fieldtype": "Datetime",
+   "label": "Revertido el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revert_reason",
+   "fieldtype": "Small Text",
+   "label": "Motivo de reversión",
+   "read_only": 1
+  },
+  {
+   "fieldname": "admin_section",
+   "fieldtype": "Section Break",
+   "label": "Cierre administrativo"
+  },
+  {
+   "fieldname": "admin_resolution_status",
+   "fieldtype": "Select",
+   "label": "Estado de resolución",
+   "options": "Pending\nIn Progress\nResolved",
+   "default": "Pending"
+  },
+  {
+   "fieldname": "admin_closed_by",
+   "fieldtype": "Link",
+   "label": "Cerrado por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "admin_closed_at",
+   "fieldtype": "Datetime",
+   "label": "Cerrado el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_admin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "admin_closure_reason",
+   "fieldtype": "Small Text",
+   "label": "Motivo de cierre administrativo"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Observaciones"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "Notas"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Livestock Intake",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Livestock Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Livestock User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

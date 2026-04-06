@@ -1,0 +1,306 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "format:MGS-{YYYY}-{####}",
+ "creation": "2026-03-20 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "cutoff_date",
+  "migration_mode",
+  "column_break_1",
+  "status",
+  "livestock_status",
+  "finance_status",
+  "file_section",
+  "file_hash",
+  "original_file",
+  "preconfig_section",
+  "preconfig_complete",
+  "livestock_tracking_mode",
+  "column_break_preconfig",
+  "template_revision",
+  "base_workbook_section",
+  "company_snapshot",
+  "column_break_workbook_left",
+  "structure_rows",
+  "customer_rows",
+  "supplier_rows",
+  "column_break_workbook_right",
+  "treasury_master_rows",
+  "treasury_balance_rows",
+  "sales_open_rows",
+  "purchase_open_rows",
+  "fiscal_obligation_rows",
+  "livestock_section",
+  "livestock_rows",
+  "finance_section",
+  "finance_rows",
+  "audit_section",
+  "posted_by",
+  "posted_at",
+  "column_break_audit",
+  "reversed_by",
+  "reversed_at",
+  "reversal_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cutoff_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha de Corte",
+   "reqd": 1
+  },
+  {
+   "fieldname": "migration_mode",
+   "fieldtype": "Select",
+   "label": "Modo",
+   "options": "Simple\nComplete",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Draft\nConfig Complete\nUploaded\nValidated\nValidation Errors\nPartially Posted\nPosted\nReversed",
+   "default": "Draft",
+   "read_only": 1
+  },
+  {
+   "fieldname": "livestock_status",
+   "fieldtype": "Select",
+   "label": "Estado Hacienda",
+   "options": "Pending\nValidated\nPosted",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_status",
+   "fieldtype": "Select",
+   "label": "Estado Finanzas",
+   "options": "Pending\nValidated\nPosted",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_section",
+   "fieldtype": "Section Break",
+   "label": "Archivo"
+  },
+  {
+   "fieldname": "file_hash",
+   "fieldtype": "Data",
+   "label": "Hash del Archivo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "original_file",
+   "fieldtype": "Attach",
+   "label": "Archivo Original"
+  },
+  {
+   "fieldname": "preconfig_section",
+   "fieldtype": "Section Break",
+   "label": "Preconfiguración"
+  },
+  {
+   "fieldname": "preconfig_complete",
+   "fieldtype": "Check",
+   "label": "Preconfiguración Completa",
+   "default": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "livestock_tracking_mode",
+   "fieldtype": "Select",
+   "label": "Modo de Seguimiento Ganadero",
+   "options": "\naggregate_by_corral\nindividual_by_ear_tag"
+  },
+  {
+   "fieldname": "column_break_preconfig",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "template_revision",
+   "fieldtype": "Int",
+   "label": "Revisión de Plantilla",
+   "default": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_workbook_section",
+   "fieldtype": "Section Break",
+   "label": "Staging Workbook Base"
+  },
+  {
+   "fieldname": "company_snapshot",
+   "fieldtype": "Long Text",
+   "label": "Snapshot Empresa (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_workbook_left",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "structure_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Estructura (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Clientes (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Proveedores (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_workbook_right",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "treasury_master_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Maestros Tesorería (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "treasury_balance_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Saldos Tesorería (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_open_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Ventas Abiertas (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_open_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Compras Abiertas (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fiscal_obligation_rows",
+   "fieldtype": "Long Text",
+   "label": "Filas Obligaciones Fiscales (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "livestock_section",
+   "fieldtype": "Section Break",
+   "label": "Staging Hacienda"
+  },
+  {
+   "fieldname": "livestock_rows",
+   "fieldtype": "Table",
+   "label": "Filas Hacienda",
+   "options": "Migration Livestock Row"
+  },
+  {
+   "fieldname": "finance_section",
+   "fieldtype": "Section Break",
+   "label": "Staging Finanzas"
+  },
+  {
+   "fieldname": "finance_rows",
+   "fieldtype": "Table",
+   "label": "Filas Finanzas",
+   "options": "Migration Finance Row"
+  },
+  {
+   "fieldname": "audit_section",
+   "fieldtype": "Section Break",
+   "label": "Auditoría"
+  },
+  {
+   "fieldname": "posted_by",
+   "fieldtype": "Link",
+   "label": "Posteado por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted_at",
+   "fieldtype": "Datetime",
+   "label": "Posteado el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_audit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reversed_by",
+   "fieldtype": "Link",
+   "label": "Revertido por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reversed_at",
+   "fieldtype": "Datetime",
+   "label": "Revertido el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reversal_reason",
+   "fieldtype": "Small Text",
+   "label": "Motivo de Reversal",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Migration Session",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "company",
+ "track_changes": 1
+}

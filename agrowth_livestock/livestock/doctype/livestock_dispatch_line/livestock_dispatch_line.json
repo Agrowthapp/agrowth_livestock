@@ -27,8 +27,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Tropa Origen",
-   "options": "Herd Batch",
-   "reqd": 1
+   "options": "Herd Batch"
   },
   {
    "fieldname": "item_code",

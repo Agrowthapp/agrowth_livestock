@@ -1,0 +1,186 @@
+{
+ "actions": [],
+ "creation": "2026-03-20 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "row_number",
+  "species",
+  "category",
+  "category_resolved",
+  "column_break_1",
+  "heads_qty",
+  "avg_weight_kg",
+  "total_weight_kg",
+  "cost_per_kg",
+  "total_cost",
+  "location_section",
+  "corral",
+  "corral_resolved",
+  "column_break_2",
+  "campo",
+  "campo_resolved",
+  "attributes_section",
+  "ownership_type",
+  "breed",
+  "sex",
+  "validation_section",
+  "validation_status",
+  "validation_message",
+  "match_suggestion"
+ ],
+ "fields": [
+  {
+   "fieldname": "row_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Fila",
+   "read_only": 1
+  },
+  {
+   "fieldname": "species",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Especie"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Categoría (raw)"
+  },
+  {
+   "fieldname": "category_resolved",
+   "fieldtype": "Data",
+   "label": "Categoría (resuelta)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "heads_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Cabezas"
+  },
+  {
+   "fieldname": "avg_weight_kg",
+   "fieldtype": "Float",
+   "label": "Peso Promedio (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "total_weight_kg",
+   "fieldtype": "Float",
+   "label": "Peso Total (kg)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cost_per_kg",
+   "fieldtype": "Currency",
+   "label": "Costo por kg",
+   "options": "currency"
+  },
+  {
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "label": "Costo Total",
+   "options": "currency"
+  },
+  {
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "Ubicación"
+  },
+  {
+   "fieldname": "corral",
+   "fieldtype": "Data",
+   "label": "Corral (raw)"
+  },
+  {
+   "fieldname": "corral_resolved",
+   "fieldtype": "Data",
+   "label": "Corral (Warehouse name)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "campo",
+   "fieldtype": "Data",
+   "label": "Campo (raw)"
+  },
+  {
+   "fieldname": "campo_resolved",
+   "fieldtype": "Data",
+   "label": "Campo (Warehouse padre)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attributes_section",
+   "fieldtype": "Section Break",
+   "label": "Atributos"
+  },
+  {
+   "fieldname": "ownership_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Tenencia",
+   "options": "Propio\nAjeno\nConsigna"
+  },
+  {
+   "fieldname": "breed",
+   "fieldtype": "Data",
+   "label": "Raza"
+  },
+  {
+   "fieldname": "sex",
+   "fieldtype": "Select",
+   "label": "Sexo",
+   "options": "Macho\nHembra\nSin especificar"
+  },
+  {
+   "fieldname": "validation_section",
+   "fieldtype": "Section Break",
+   "label": "Validación"
+  },
+  {
+   "fieldname": "validation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Pending\nOK\nWarning\nError",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "validation_message",
+   "fieldtype": "Small Text",
+   "label": "Mensaje",
+   "read_only": 1
+  },
+  {
+   "fieldname": "match_suggestion",
+   "fieldtype": "Long Text",
+   "label": "Sugerencia de Match (JSON)",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Livestock",
+ "name": "Migration Livestock Row",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

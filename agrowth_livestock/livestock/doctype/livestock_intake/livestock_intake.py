@@ -226,8 +226,9 @@ class LivestockIntake(Document):
 			animal.company = self.company
 			animal.current_herd_batch = self.herd_batch
 			animal.warehouse = self.warehouse
-			animal.origin_type = "Purchase"
-			animal.origin_document = self.settlement
+			if self.settlement:
+				animal.origin_type = "Livestock Settlement"
+				animal.origin_document = self.settlement
 			animal.disabled = 0
 			animal.insert(ignore_permissions=True)
 

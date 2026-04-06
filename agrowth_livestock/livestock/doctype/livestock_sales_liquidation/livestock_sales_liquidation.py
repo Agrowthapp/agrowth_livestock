@@ -1,11 +1,8 @@
 import frappe
 from frappe.model.document import Document
 from frappe import _
-from agrowth_livestock.utils import (
-    calculate_withholdings,
-    add_withholdings_to_invoice,
-    get_company_default_account,
-)
+from frappe.utils import flt
+from agrowth_livestock.utils import calculate_withholdings
 
 
 class LivestockSalesLiquidation(Document):
@@ -38,15 +35,24 @@ class LivestockSalesLiquidation(Document):
         self.total_bruto = total_bruto
         self.total_iva = total_iva
 
-        withholdings = calculate_withholdings(self, total_bruto, "Customer")
-        self.total_retenciones = sum(w["amount"] for w in withholdings)
+        manual_iibb = flt(self.retencion_iibb_amount or 0)
+        manual_iigg = flt(self.retencion_iigg_amount or 0)
+        total_retenciones = manual_iibb + manual_iigg
 
-        # Neto = Bruto + IVA - Retenciones - Comisiones
+        if total_retenciones <= 0 and self.withholding_profile:
+            withholdings = calculate_withholdings(self, total_bruto, "Customer")
+            total_retenciones = sum(w["amount"] for w in withholdings)
+
+        self.total_retenciones = total_retenciones
+        ajuste_interno = flt(self.ajuste_interno or 0)
+
+        # Neto = Bruto + IVA - Retenciones - Comisiones + Ajuste Interno
         self.total_neto = (
             total_bruto
             + total_iva
             - self.total_retenciones
             - (self.total_comisiones or 0)
+            + ajuste_interno
         )
 
     # ── Submit ─────────────────────────────────────────────────────────────────
@@ -86,6 +92,9 @@ class LivestockSalesLiquidation(Document):
         dispatch.warehouse = self.warehouse or ""
         dispatch.province = self.province or "Buenos Aires"
         dispatch.withholding_profile = self.withholding_profile or ""
+        dispatch.retencion_iibb_amount = self.retencion_iibb_amount or 0
+        dispatch.retencion_iigg_amount = self.retencion_iigg_amount or 0
+        dispatch.ajuste_interno = self.ajuste_interno or 0
 
         # Trasladar líneas comerciales → líneas del dispatch
         for line in self.items:
