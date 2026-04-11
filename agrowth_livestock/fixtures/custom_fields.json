@@ -11,5 +11,47 @@
     "read_only": 1,
     "no_copy": 1,
     "in_standard_filter": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_ag_company",
+    "dt": "Supplier",
+    "fieldname": "custom_ag_company",
+    "fieldtype": "Link",
+    "label": "Agrowth Company",
+    "options": "Company",
+    "insert_after": "supplier_name",
+    "hidden": 1,
+    "no_copy": 1,
+    "read_only": 1,
+    "search_index": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Customer-custom_ag_company",
+    "dt": "Customer",
+    "fieldname": "custom_ag_company",
+    "fieldtype": "Link",
+    "label": "Agrowth Company",
+    "options": "Company",
+    "insert_after": "customer_name",
+    "hidden": 1,
+    "no_copy": 1,
+    "read_only": 1,
+    "search_index": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Item-custom_ag_company",
+    "dt": "Item",
+    "fieldname": "custom_ag_company",
+    "fieldtype": "Link",
+    "label": "Agrowth Company",
+    "options": "Company",
+    "insert_after": "item_name",
+    "hidden": 1,
+    "no_copy": 1,
+    "read_only": 1,
+    "search_index": 1
   }
 ]

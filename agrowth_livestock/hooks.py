@@ -12,7 +12,18 @@ app_license = "MIT"
 fixtures = [
     {
         "doctype": "Custom Field",
-        "filters": [["name", "in", ["Journal Entry-migration_session"]]],
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Journal Entry-migration_session",
+                    "Supplier-custom_ag_company",
+                    "Customer-custom_ag_company",
+                    "Item-custom_ag_company",
+                ],
+            ]
+        ],
     }
 ]
 

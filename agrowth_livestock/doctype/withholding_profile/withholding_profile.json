@@ -27,6 +27,15 @@
    "unique": 1
   },
   {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 0,
+   "search_index": 1
+  },
+  {
    "fieldname": "province",
    "fieldtype": "Select",
    "label": "Provincia",
