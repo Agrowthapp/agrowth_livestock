@@ -5,7 +5,7 @@ with open("requirements.txt") as f:
 
 setup(
 	name="agrowth_livestock",
-	version="0.0.1",
+	version="0.2.0",
 	description="Módulo ganadero para ERPNext",
 	author="Agrowth",
 	author_email="info@agrowth.app",

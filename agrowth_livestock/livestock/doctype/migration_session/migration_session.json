@@ -235,6 +235,14 @@
    "options": "Migration Finance Row"
   },
   {
+   "fieldname": "corrections_json",
+   "fieldtype": "Long Text",
+   "label": "Corrections JSON",
+   "read_only": 1,
+   "hidden": 1,
+   "description": "JSON overlay of user corrections applied via the validation wizard. Format: {sectionKey: {rowIndex: {fieldKey: value}}}."
+  },
+  {
    "fieldname": "audit_section",
    "fieldtype": "Section Break",
    "label": "Auditoría"

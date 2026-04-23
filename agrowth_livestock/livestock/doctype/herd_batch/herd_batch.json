@@ -61,7 +61,7 @@
    "fieldname": "confirmation_status",
    "fieldtype": "Select",
    "label": "Estado de Confirmación",
-   "options": "Pending\nCompleted",
+   "options": "Pending\nCompleted\nRejected",
    "default": "Pending",
    "in_list_view": 1
   },
@@ -69,7 +69,7 @@
    "fieldname": "confirmation_mode",
    "fieldtype": "Select",
    "label": "Modo de Confirmación",
-   "options": "None\nManual\nCSV EID",
+   "options": "None\nManual\nCSV EID\nRejected",
    "default": "None"
   },
   {
