@@ -265,14 +265,17 @@ def get_intake(company_id, intake_id):
 
 
 @frappe.whitelist()
-def confirm_intake(company_id, intake_id, user, mode="None", lines=None, animals=None, notes=None):
+def confirm_intake(company_id, intake_id, user, mode="None", lines=None, animals=None, notes=None, herd_batch=None):
     doc = _load_intake(company_id, intake_id)
     if not doc:
         return None
     if notes and hasattr(doc, "notes"):
         doc.notes = str(notes)
         doc.save(ignore_permissions=True)
-    doc.confirm_intake(user, mode=mode or "None")
+    if herd_batch:
+        doc.herd_batch = herd_batch
+        doc.save(ignore_permissions=True)
+    doc.confirm_intake(user, mode=mode or "None", herd_batch=herd_batch)
     return _map_intake(frappe.get_doc("Livestock Intake", intake_id))
 
 

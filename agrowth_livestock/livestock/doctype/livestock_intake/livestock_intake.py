@@ -100,7 +100,7 @@ class LivestockIntake(Document):
 		self.has_discrepancy = (self.expected_heads != self.received_heads)
 	
 	@frappe.whitelist()
-	def confirm_intake(self, user, mode="None"):
+	def confirm_intake(self, user, mode="None", herd_batch=None):
 		"""
 		Confirm the intake and activate related herd batch.
 		This is the GREEN step — stock consolidation happens here.
