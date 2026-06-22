@@ -96,6 +96,22 @@ ANIMAL_FIELDS = [
     "warehouse",
 ]
 
+# BUG 3 fix: EVENT_FIELDS is the canonical "what to fetch from Animal
+# Event" list. The full set is the union of base doctype fields,
+# in-flight schema additions, and custom fields. Some of these fields
+# (e.g. `ear_tag_id`, `line_index`, `event_group_id`, `scope_type`,
+# `scope_ref`, `unidentified_head_count`, `identification_status`) are
+# NOT declared on the base Animal Event doctype and are not yet
+# installed as Custom Fields on the running site. Passing the raw
+# constant to `frappe.get_all` would build a `SELECT *` that includes
+# a missing column, and MySQL would return
+# `1054 Unknown column 'X' in 'SELECT'` (which Frappe maps to a 500
+# on the API surface). The fix is `_existing_event_fields()`: a helper
+# that filters the constant to only fields that exist on the doctype,
+# so the SQL never requests a missing column. Sites that have
+# installed the custom fields get the full set; sites that have not
+# get a defensive subset (and resolve `ear_tag_id` from the linked
+# Animal row in `_resolve_animal_ear_tags`).
 EVENT_FIELDS = [
     "name",
     "animal",
@@ -116,6 +132,87 @@ EVENT_FIELDS = [
     "unidentified_head_count",
     "identification_status",
 ]
+
+# Frappe standard fields that are always present and should not be
+# filtered out by `_existing_event_fields` even though
+# `get_meta().get_field` would still find them via the parent
+# Document class.
+STANDARD_EVENT_FIELDS = {
+    "name",
+    "owner",
+    "creation",
+    "modified",
+    "modified_by",
+    "docstatus",
+    "idx",
+    "parent",
+    "parentfield",
+    "parenttype",
+}
+
+
+def _existing_event_fields():
+    """Return the subset of EVENT_FIELDS that exist on the running
+    Animal Event doctype (base + custom fields). Defensive — sites
+    without the custom fields installed still get a working query."""
+    if not getattr(frappe, "db", None) or not getattr(frappe, "get_meta", None):
+        # Bench smoke / unit-test path: return the base schema we know
+        # is on Animal Event (verified against animal_event.json) so the
+        # helper does not crash on import.
+        return [
+            "name",
+            "animal",
+            "event_type",
+            "event_date",
+            "new_weight",
+            "new_warehouse",
+            "treatment",
+            "notes",
+        ]
+    try:
+        meta = frappe.get_meta("Animal Event")
+    except Exception:
+        return [
+            "name",
+            "animal",
+            "event_type",
+            "event_date",
+            "new_weight",
+            "new_warehouse",
+            "treatment",
+            "notes",
+        ]
+    return [field for field in EVENT_FIELDS if field in STANDARD_EVENT_FIELDS or meta.get_field(field)]
+
+
+def _has_event_field(fieldname):
+    """True when the running Animal Event doctype declares the field
+    (base + custom fields). Used by the call sites to decide whether
+    to resolve `ear_tag_id` from the linked Animal row."""
+    if not getattr(frappe, "db", None) or not getattr(frappe, "get_meta", None):
+        return False
+    try:
+        meta = frappe.get_meta("Animal Event")
+    except Exception:
+        return False
+    return fieldname in STANDARD_EVENT_FIELDS or bool(meta.get_field(fieldname))
+
+
+def _resolve_animal_ear_tags(animal_ids):
+    """Return a `{animal_id: ear_tag_id}` map for the given set of
+    Animal names. Used by the labore history endpoints to populate
+    `earTagId` on the response when the `Animal Event.ear_tag_id`
+    column is not present (BUG 3). The lookup is a single
+    `frappe.get_all` regardless of input size."""
+    if not animal_ids:
+        return {}
+    rows = frappe.get_all(
+        "Animal",
+        filters=[["name", "in", list(animal_ids)]],
+        fields=["name", "ear_tag_id"],
+        limit_page_length=max(len(animal_ids), 1),
+    )
+    return {str(r.get("name") or ""): str(r.get("ear_tag_id") or "") for r in rows}
 
 
 def _list_animals(company_id, filters=None):
@@ -268,13 +365,22 @@ def _create_partial_unidentified_operation(params, event_group_id, treatments):
         frappe.get_doc(payload).insert()
 
 
-def _map_history_row(raw):
+def _map_history_row(raw, ear_tag_map=None):
     row_id = str(raw.get("name") or "")
+    # BUG 3 fix: when the event row did not carry `ear_tag_id` (because
+    # the column is not on the doctype), fall back to the per-batch
+    # Animal lookup the caller provided. This keeps the BFF DTO
+    # `LaborHistoryRow.earTagId` populated without requiring a Frappe
+    # migration or a BFF retry pattern.
+    ear_tag_id = _normalize_text(raw.get("ear_tag_id"))
+    if not ear_tag_id and ear_tag_map:
+        animal_id = str(raw.get("animal") or "")
+        ear_tag_id = ear_tag_map.get(animal_id) or None
     return {
         "id": row_id,
         "groupId": _normalize_text(raw.get("event_group_id")) or row_id,
         "animalId": _normalize_text(raw.get("animal")) or "",
-        "earTagId": _normalize_text(raw.get("ear_tag_id")),
+        "earTagId": ear_tag_id,
         "eventType": _normalize_text(raw.get("event_type")) or "",
         "eventDate": _normalize_text(raw.get("event_date")) or "",
         "treatment": _normalize_text(raw.get("treatment")),
@@ -469,40 +575,62 @@ def apply_bulk_labor(company_id, params):
 def list_labores(company_id, event_type=None, animal_id=None, scope_type=None, scope_id=None, from_date=None, to_date=None, page=1, page_size=50):
     page = max(cint(page), 1)
     page_size = min(max(cint(page_size), 1), 100)
+    # BUG 3 fix: filter EVENT_FIELDS to only fields that exist on the
+    # running Animal Event doctype, so the SQL query never requests a
+    # missing column (e.g. `ear_tag_id`).
+    fields = _existing_event_fields()
     rows = frappe.get_all(
         "Animal Event",
         filters=_build_event_filters(event_type, animal_id, scope_type, scope_id, from_date, to_date),
-        fields=EVENT_FIELDS,
+        fields=fields,
         limit_page_length=page_size,
         limit_start=(page - 1) * page_size,
         order_by="event_date desc, modified desc",
     )
-    return [_map_history_row(row) for row in rows]
+    # BUG 3 fix: when the `ear_tag_id` column is not on the event, fall
+    # back to a single Animal lookup for the unique animal ids.
+    ear_tag_map = (
+        {}
+        if _has_event_field("ear_tag_id")
+        else _resolve_animal_ear_tags({str(r.get("animal") or "") for r in rows})
+    )
+    return [_map_history_row(row, ear_tag_map=ear_tag_map) for row in rows]
 
 
 @frappe.whitelist()
 def list_grouped_labores(company_id, event_type=None, animal_id=None, scope_type=None, scope_id=None, from_date=None, to_date=None, page=1, page_size=50):
     page = max(cint(page), 1)
     page_size = min(max(cint(page_size), 1), 100)
+    # BUG 3 fix: filter EVENT_FIELDS to only fields that exist on the
+    # running Animal Event doctype.
+    fields = _existing_event_fields()
     rows = frappe.get_all(
         "Animal Event",
         filters=_build_event_filters(event_type, animal_id, scope_type, scope_id, from_date, to_date),
-        fields=EVENT_FIELDS,
+        fields=fields,
         limit_page_length=GROUPED_FETCH_CAP,
         limit_start=0,
         order_by="event_date desc, modified desc",
     )
-    grouped = _group_history_rows([_map_history_row(row) for row in rows])
+    ear_tag_map = (
+        {}
+        if _has_event_field("ear_tag_id")
+        else _resolve_animal_ear_tags({str(r.get("animal") or "") for r in rows})
+    )
+    grouped = _group_history_rows([_map_history_row(row, ear_tag_map=ear_tag_map) for row in rows])
     start = (page - 1) * page_size
     return {"rows": grouped[start:start + page_size], "total": len(grouped)}
 
 
 @frappe.whitelist()
 def get_labor_group_detail(company_id, group_id):
+    # BUG 3 fix: filter EVENT_FIELDS to only fields that exist on the
+    # running Animal Event doctype.
+    fields = _existing_event_fields()
     group_rows = frappe.get_all(
         "Animal Event",
         filters=[["event_group_id", "=", group_id]],
-        fields=EVENT_FIELDS,
+        fields=fields,
         limit_page_length=GROUPED_FETCH_CAP,
         limit_start=0,
     )
@@ -510,13 +638,21 @@ def get_labor_group_detail(company_id, group_id):
         group_rows = frappe.get_all(
             "Animal Event",
             filters=[["name", "=", group_id]],
-            fields=EVENT_FIELDS,
+            fields=fields,
             limit_page_length=GROUPED_FETCH_CAP,
             limit_start=0,
         )
     if not group_rows:
         return None
-    return _build_group_detail([_map_history_row(row) for row in group_rows], group_id)
+    ear_tag_map = (
+        {}
+        if _has_event_field("ear_tag_id")
+        else _resolve_animal_ear_tags({str(r.get("animal") or "") for r in group_rows})
+    )
+    return _build_group_detail(
+        [_map_history_row(row, ear_tag_map=ear_tag_map) for row in group_rows],
+        group_id,
+    )
 
 
 @frappe.whitelist()
