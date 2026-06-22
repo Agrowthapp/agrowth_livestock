@@ -265,7 +265,7 @@ def get_intake(company_id, intake_id):
 
 
 @frappe.whitelist()
-def confirm_intake(company_id, intake_id, user, mode="None", lines=None, animals=None, notes=None, herd_batch=None):
+def confirm_intake(company_id, intake_id, user, mode="None", lines=None, animals=None, notes=None, herd_batch=None, warehouse=None):
     doc = _load_intake(company_id, intake_id)
     if not doc:
         return None
@@ -275,6 +275,46 @@ def confirm_intake(company_id, intake_id, user, mode="None", lines=None, animals
     if herd_batch:
         doc.herd_batch = herd_batch
         doc.save(ignore_permissions=True)
+    # BUG 1 fix: v9-migrated intakes (and any intake created from a
+    # settlement that has no `warehouse`) reach the confirm flow with an
+    # empty `doc.warehouse`. The field is `reqd: 1` on Livestock Intake,
+    # so the doc-level `doc.save()` would raise `MandatoryError: warehouse`
+    # before the herd batch creation step even runs. Resolve a fallback
+    # warehouse defensively here so the confirm flow does not crash on
+    # legacy data. Fallback order (any of these is acceptable, we stop
+    # at the first match):
+    #   1. Explicit `warehouse` kwarg passed by the BFF.
+    #   2. The linked settlement's `warehouse` (intake.settlement).
+    #   3. The linked herd_batch's `warehouse` (intake.herd_batch).
+    #   4. The default Acostumbramiento corral for the company.
+    if not doc.warehouse:
+        resolved_warehouse = warehouse
+        if not resolved_warehouse and doc.settlement:
+            resolved_warehouse = frappe.db.get_value(
+                "Livestock Settlement", doc.settlement, "warehouse"
+            )
+        if not resolved_warehouse and doc.herd_batch:
+            resolved_warehouse = frappe.db.get_value(
+                "Herd Batch", doc.herd_batch, "warehouse"
+            )
+        if not resolved_warehouse and doc.company:
+            corral_results = frappe.get_all(
+                "Warehouse",
+                filters={
+                    "company": doc.company,
+                    "disabled": 0,
+                    "is_group": 0,
+                    "is_corral": 1,
+                    "corral_type": "Acostumbramiento",
+                },
+                fields=["name"],
+                limit=1,
+            )
+            if corral_results:
+                resolved_warehouse = corral_results[0]["name"]
+        if resolved_warehouse:
+            doc.warehouse = resolved_warehouse
+            doc.save(ignore_permissions=True)
     doc.confirm_intake(user, mode=mode or "None", herd_batch=herd_batch)
     return _map_intake(frappe.get_doc("Livestock Intake", intake_id))
 

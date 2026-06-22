@@ -113,6 +113,28 @@ class LivestockIntake(Document):
 		if self.status == "Cerrado administrativamente":
 			frappe.throw("No se puede confirmar un ingreso cerrado administrativamente")
 
+		# BUG 1 fix (defense in depth): v9-migrated intakes (or any
+		# intake created from a settlement that has no `warehouse`) reach
+		# the confirm flow with an empty `self.warehouse`. The field is
+		# `reqd: 1` on the doctype, so `self.save()` at the end of this
+		# method would raise `MandatoryError: warehouse` from Frappe
+		# model validation. The API layer (`api/intakes.py:confirm_intake`)
+		# also resolves a fallback, but direct Frappe form submissions or
+		# custom scripts bypass the API — this guard catches them.
+		# Resolution order: settlement warehouse, then default
+		# Acostumbramiento corral for the company.
+		if not self.warehouse:
+			resolved_warehouse = None
+			if self.settlement:
+				resolved_warehouse = frappe.db.get_value(
+					"Livestock Settlement", self.settlement, "warehouse"
+				)
+			if not resolved_warehouse:
+				resolved_warehouse = self._resolve_default_acostumbramiento_corral(self.company)
+			if resolved_warehouse:
+				self.warehouse = resolved_warehouse
+				self.db_set("warehouse", resolved_warehouse, update_modified=False)
+
 		# Update intake status
 		self.status = "Confirmado"
 		self.confirmed_by = user
