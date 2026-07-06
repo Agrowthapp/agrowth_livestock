@@ -8,19 +8,29 @@
  "document_type": "Document",
  "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [
-  "company",
-  "posting_date",
-  "migration_session",
-  "column_break_1",
-  "total_heads",
-  "total_weight_kg",
-  "total_value",
-  "items_section",
-  "items"
- ],
- "fields": [
-  {
+   "field_order": [
+   "title",
+   "company",
+   "posting_date",
+   "field_location",
+   "migration_session",
+   "column_break_1",
+   "total_heads",
+   "total_weight_kg",
+   "total_value",
+   "notes_section",
+   "notes",
+   "items_section",
+   "items"
+  ],
+  "fields": [
+   {
+    "fieldname": "title",
+    "fieldtype": "Data",
+    "label": "Título",
+    "reqd": 0
+   },
+   {
    "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -35,18 +45,24 @@
    "label": "Fecha de Apertura",
    "reqd": 1
   },
-  {
-   "fieldname": "migration_session",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Sesión de Migración",
-   "options": "Migration Session",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_1",
-   "fieldtype": "Column Break"
-  },
+   {
+    "fieldname": "field_location",
+    "fieldtype": "Data",
+    "label": "Ubicación / Campo",
+    "reqd": 0
+   },
+   {
+    "fieldname": "migration_session",
+    "fieldtype": "Link",
+    "in_list_view": 1,
+    "label": "Sesión de Migración",
+    "options": "Migration Session",
+    "reqd": 0
+   },
+   {
+    "fieldname": "column_break_1",
+    "fieldtype": "Column Break"
+   },
   {
    "fieldname": "total_heads",
    "fieldtype": "Int",
@@ -67,11 +83,22 @@
    "options": "currency",
    "read_only": 1
   },
-  {
-   "fieldname": "items_section",
-   "fieldtype": "Section Break",
-   "label": "Ítems"
-  },
+   {
+    "fieldname": "notes_section",
+    "fieldtype": "Section Break",
+    "label": "Notas y Auditoría"
+   },
+   {
+    "fieldname": "notes",
+    "fieldtype": "Text",
+    "label": "Notas / Historial de Auditoría",
+    "reqd": 0
+   },
+   {
+    "fieldname": "items_section",
+    "fieldtype": "Section Break",
+    "label": "Ítems"
+   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
@@ -106,6 +133,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "company",
+  "title_field": "title",
  "track_changes": 1
 }

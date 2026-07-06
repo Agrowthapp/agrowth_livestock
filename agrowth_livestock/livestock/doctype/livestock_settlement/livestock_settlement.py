@@ -9,6 +9,9 @@ from agrowth_livestock.utils import (
     get_company_default_account,
     get_iva_rate,
 )
+from agrowth_livestock.cancellation_policy import (
+    resolve_intake_status_blocking_cancel,
+)
 
 
 class LivestockSettlement(Document):
@@ -47,8 +50,8 @@ class LivestockSettlement(Document):
         self.total_bruto = total_bruto
         self.total_iva = total_iva
         
-        manual_iibb = flt(self.retencion_iibb_amount or 0)
-        manual_iigg = flt(self.retencion_iigg_amount or 0)
+        manual_iibb = flt(self.get("retencion_iibb_amount", 0))
+        manual_iigg = flt(self.get("retencion_iigg_amount", 0))
         total_retenciones = manual_iibb + manual_iigg
 
         if total_retenciones <= 0 and self.tax_profile:
@@ -56,26 +59,68 @@ class LivestockSettlement(Document):
             total_retenciones = sum(w["amount"] for w in withholdings)
 
         self.total_retenciones = total_retenciones
-        ajuste_interno = flt(self.ajuste_interno or 0)
+        ajuste_interno = flt(self.get("ajuste_interno", 0))
 
         # Net = Gross + VAT - Withholdings - Commissions + Internal Adjustment
         self.total_neto = (total_bruto + total_iva - total_retenciones - (self.total_comisiones or 0) + ajuste_interno)
 
     def on_submit(self):
+        # PR1 livestock-entry-settlement-boundary: settlement is strictly
+        # administrative. It only creates a Purchase Invoice and a pending
+        # Livestock Intake. Physical materialization (Herd Batch + Stock Entry
+        # + Animal rows) is owned by Livestock Intake.confirm_intake().
         self.create_purchase_invoice()
-        self.create_herd_batch()
-        self.create_stock_entry()
-        self.create_livestock_intake()  # NEW: create pending intake
+        self.create_livestock_intake()
 
     def on_cancel(self):
+        # PR1 livestock-entry-settlement-boundary: settlement cancel is
+        # blocked when the linked intake is in an active state. The policy
+        # is owned by `agrowth_livestock.cancellation_policy` so it can be
+        # unit-tested without a bench and stays symmetric across both
+        # Frappe doctype trees.
+        self._enforce_cancel_guard_for_linked_intake()
         self.cancel_purchase_invoice()
         self.cancel_stock_entry()
         self.cancel_herd_batch()
 
+    def _enforce_cancel_guard_for_linked_intake(self):
+        """Block settlement cancel if the linked intake is in an active state.
+
+        Reads the live intake row (if any) and asks the policy helper whether
+        the current status allows cancel. On a blocking result, raises
+        `frappe.throw` so the surrounding `frappe.call` returns a 417/Validation
+        that the BFF surfaces as `INTAKE_BLOCKS_CANCEL` for PR3 to wire up
+        a `Deprecation`-style UX.
+        """
+        if not frappe.db.exists("DocType", "Livestock Intake"):
+            return
+
+        intake = frappe.db.get_value(
+            "Livestock Intake",
+            {"settlement": self.name, "docstatus": ["<", 2]},
+            ["name", "status"],
+            as_dict=True,
+        )
+        if not intake:
+            return
+
+        decision = resolve_intake_status_blocking_cancel(
+            intake.status, intake.name
+        )
+        if decision is not None:
+            frappe.throw(
+                _(decision["message"]),
+                title=_(decision["title"]),
+            )
+
     def create_purchase_invoice(self):
         """Crea una Purchase Invoice en estado draft"""
         if self.purchase_invoice:
-            frappe.throw(_("Ya existe una Factura de Compra asociada"))
+            pi = frappe.get_doc("Purchase Invoice", self.purchase_invoice)
+            if pi.docstatus == 0:
+                pi.submit()
+            frappe.msgprint(_("Factura de Compra existente {0} submitteada").format(pi.name))
+            return
 
         pi = frappe.new_doc("Purchase Invoice")
         pi.company = self.company
@@ -107,8 +152,8 @@ class LivestockSettlement(Document):
                     "description": "IVA"
                 })
 
-        manual_iibb = flt(self.retencion_iibb_amount or 0)
-        manual_iigg = flt(self.retencion_iigg_amount or 0)
+        manual_iibb = flt(self.get("retencion_iibb_amount", 0))
+        manual_iigg = flt(self.get("retencion_iigg_amount", 0))
 
         if manual_iibb or manual_iigg:
             add_nominal_withholdings_to_invoice(
@@ -134,6 +179,8 @@ class LivestockSettlement(Document):
         if self.herd_batch:
             frappe.throw(_("Ya existe una Tropa asociada"))
 
+        if not self.warehouse:
+            return
         batch = frappe.new_doc("Herd Batch")
         batch.company = self.company
         batch.warehouse = self.warehouse
@@ -165,6 +212,8 @@ class LivestockSettlement(Document):
 
     def create_stock_entry(self):
         """Crea un Stock Entry de tipo Material Receipt"""
+        if not self.warehouse:
+            return
         if self.stock_entry:
             frappe.throw(_("Ya existe una Entrada de Stock asociada"))
 
@@ -264,5 +313,11 @@ class LivestockSettlement(Document):
         intake.notes = f"Generado automáticamente desde liquidación {self.name}"
         
         intake.insert(ignore_permissions=True)
-        
+
+        # PR2 boundary: write the reverse link so the settlement row carries
+        # the canonical join key (intake) to the operational track. The intake
+        # owns its own status transitions; this pointer is read-only metadata
+        # surfaced on the settlement list / detail views.
+        self.db_set("intake", intake.name, update_modified=False)
+
         frappe.msgprint(_("Ingreso pendiente {0} creado").format(intake.name))

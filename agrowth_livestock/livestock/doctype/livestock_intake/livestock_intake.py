@@ -8,6 +8,10 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
 
+from agrowth_livestock.intake_owned_materialization_flag import (
+    intake_owned_materialization_enabled,
+)
+
 PLACEHOLDER_PREFIX = "SIN-CARAVANA-"
 
 
@@ -104,8 +108,13 @@ class LivestockIntake(Document):
 		"""
 		Confirm the intake and activate related herd batch.
 		This is the GREEN step — stock consolidation happens here.
-		The draft Stock Entry created by the settlement is submitted now,
-		not at settlement time, so stock only moves when hacienda physically arrives.
+
+		PR2 livestock-entry-settlement-boundary: physical materialization
+		(Herd Batch + Stock Entry) is owned by the intake, not the
+		settlement. The intake creates the Herd Batch and submits the
+		Stock Entry on confirm. The legacy `_submit_settlement_stock_entry`
+		path remains available behind `LIVESTOCK_ENTRY_BOUNDARY_V2` for
+		migration only.
 		"""
 		if self.status == "Confirmado":
 			frappe.throw("Este ingreso ya fue confirmado")
@@ -141,14 +150,12 @@ class LivestockIntake(Document):
 		self.confirmed_at = frappe.utils.now()
 		self.confirmation_mode = mode
 
- 		# Activate herd batch if exists
-		if self.herd_batch:
-			batch = frappe.get_doc("Herd Batch", self.herd_batch)
-			batch.status = "Active"
-			batch.confirmation_status = "Completed"
-			batch.confirmation_mode = mode
-			batch.confirmed_at = frappe.utils.now()
-			batch.save(ignore_permissions=True)
+		# PR2 boundary: intake owns the Herd Batch creation. If the
+		# intake was migrated from a settlement-first flow, the legacy
+		# `self.herd_batch` pointer may already be set — in that case
+		# `_create_herd_batch_for_intake` activates it instead of
+		# creating a new one.
+		self._create_herd_batch_for_intake(user, mode)
 
 		# Materialize received animals into Animal docs before assigning corrales.
 		# Without this, stock has active Herd Batches but no real animals to drill down or move.
@@ -158,9 +165,10 @@ class LivestockIntake(Document):
 		# Must run before stock entry submission so warehouse is set correctly.
 		self._assign_animals_to_default_corral(user, self.company)
 
-		# Submit the draft Stock Entry created by the settlement.
-		# Stock consolidation only happens at physical confirmation, not at settlement submit.
-		self._submit_settlement_stock_entry(user)
+		# PR2 boundary: intake owns the Stock Entry creation + submission.
+		# The legacy path (`_submit_settlement_stock_entry`) is kept for
+		# migration only behind the `LIVESTOCK_ENTRY_BOUNDARY_V2` flag.
+		self._create_and_submit_stock_entry(user)
 
 		self.save(ignore_permissions=True)
 
@@ -298,7 +306,24 @@ class LivestockIntake(Document):
 		Submit the draft Stock Entry linked to the originating settlement.
 		Called only during confirm_intake — this is the canonical stock posting point.
 		No-op if the settlement has no stock entry or it is already submitted.
+
+		PR2 livestock-entry-settlement-boundary: this helper is the
+		LEGACY path. It is kept for migration only and is gated by the
+		`LIVESTOCK_ENTRY_BOUNDARY_V2` feature flag. The canonical
+		post-PR2 path is `_create_and_submit_stock_entry`, which the
+		intake owns end-to-end.
+
+		When the flag is OFF (default), this helper is the no-op
+		fallback that submits the settlement-created draft stock entry
+		so legacy sites do not lose the path on upgrade. When the flag
+		is ON, the new path is used and this helper is bypassed.
 		"""
+		if intake_owned_materialization_enabled():
+			# PR2 path: the new `_create_and_submit_stock_entry` is the
+			# canonical stock posting point. The legacy path is bypassed
+			# when the rollout flag is on.
+			return
+
 		if not self.settlement:
 			return
 
@@ -320,7 +345,181 @@ class LivestockIntake(Document):
 		se.submit()
 		frappe.logger().info(
 			f"[livestock_intake] Stock Entry {se.name} submitted on intake {self.name} "
-			f"confirmed by {user}"
+			f"confirmed by {user} (legacy path)"
+		)
+
+	def _create_herd_batch_for_intake(self, user, mode):
+		"""
+		PR2 livestock-entry-settlement-boundary: create the Herd Batch
+		from the intake, not the settlement.
+
+		Two cases:
+		  1. The intake was created post-PR2 by `Livestock Settlement.create_livestock_intake`,
+		     which does NOT create a Herd Batch (settlement is strictly
+		     administrative). This method creates a fresh Herd Batch
+		     and persists the pointer on `self.herd_batch`.
+		  2. The intake was migrated from a settlement-first legacy
+		     flow where the settlement already created a Herd Batch.
+		     In that case `self.herd_batch` is already set; this method
+		     activates it and updates its confirmation fields.
+
+		The Herd Batch's `origin_type` is set to "Livestock Intake" so
+		the operational track is the source of truth for the artifact
+		(per design §Architecture Decisions).
+		"""
+		# Case 2: legacy intake — Herd Batch already exists, just activate it.
+		if self.herd_batch and frappe.db.exists("Herd Batch", self.herd_batch):
+			batch = frappe.get_doc("Herd Batch", self.herd_batch)
+			batch.status = "Active"
+			if hasattr(batch, "confirmation_status"):
+				batch.confirmation_status = "Completed"
+			if hasattr(batch, "confirmation_mode"):
+				batch.confirmation_mode = mode
+			if hasattr(batch, "confirmed_at"):
+				batch.confirmed_at = frappe.utils.now()
+			batch.save(ignore_permissions=True)
+			frappe.logger().info(
+				f"[livestock_intake] Herd Batch {batch.name} activated on intake "
+				f"{self.name} confirmed by {user} (legacy artifact)"
+			)
+			return
+
+		# Case 1: post-PR2 intake — no Herd Batch exists, create one.
+		if not self.warehouse:
+			frappe.throw(
+				"No se puede crear la tropa: el ingreso no tiene depósito definido"
+			)
+
+		batch = frappe.new_doc("Herd Batch")
+		batch.company = self.company
+		batch.warehouse = self.warehouse
+		batch.arrival_date = self.posting_date
+		batch.status = "Active"
+		# PR2 boundary: origin is the intake (operational track), not
+		# the settlement. The settlement reference is kept on the
+		# intake row and reachable via the reverse link (F.1).
+		batch.origin_type = "Livestock Intake"
+		if hasattr(batch, "origin_document"):
+			batch.origin_document = self.name
+		if hasattr(batch, "confirmation_status"):
+			batch.confirmation_status = "Completed"
+		if hasattr(batch, "confirmation_mode"):
+			batch.confirmation_mode = mode
+		if hasattr(batch, "confirmed_at"):
+			batch.confirmed_at = frappe.utils.now()
+		batch.notes = f"Generado por confirmación de ingreso {self.name}"
+
+		# Build Herd Batch lines from intake lines so per-category
+		# breakdown is preserved at the batch level.
+		for line in self.lines or []:
+			batch_line = batch.append("lines")
+			if hasattr(batch_line, "species"):
+				batch_line.species = line.species or "Bovino"
+			if hasattr(batch_line, "category"):
+				batch_line.category = line.category or "Otro"
+			if hasattr(batch_line, "item_code"):
+				batch_line.item_code = line.item_code
+			if hasattr(batch_line, "qty_heads"):
+				batch_line.qty_heads = line.expected_heads or 0
+			if hasattr(batch_line, "avg_weight"):
+				batch_line.avg_weight = getattr(line, "avg_weight", None)
+			if hasattr(batch_line, "total_weight"):
+				batch_line.total_weight = getattr(line, "total_weight", None)
+			if hasattr(batch_line, "unit_price"):
+				batch_line.unit_price = getattr(line, "unit_price", None)
+			if hasattr(batch_line, "amount"):
+				batch_line.amount = getattr(line, "amount", None)
+
+		batch.insert(ignore_permissions=True)
+
+		# PR2 boundary: persist the canonical reverse pointer so the
+		# intake row carries the join key to the Herd Batch. The BFF
+		# reads this pointer to surface `herdBatch` on the intake DTO.
+		self.db_set("herd_batch", batch.name, update_modified=False)
+
+		frappe.logger().info(
+			f"[livestock_intake] Herd Batch {batch.name} created on intake "
+			f"{self.name} confirmed by {user}"
+		)
+
+	def _create_and_submit_stock_entry(self, user):
+		"""
+		PR2 livestock-entry-settlement-boundary: create + submit the
+		Stock Entry from the intake, not the settlement. This is the
+		canonical post-PR2 stock posting point.
+
+		Behavior:
+		  - When the intake is post-PR2, no Stock Entry exists yet;
+		    this method creates a Material Receipt Stock Entry and
+		    submits it. The Stock Entry name is persisted on the
+		    settlement's `stock_entry` field for backwards-compat
+		    reads (the BFF now reads from the intake, not the
+		    settlement, but legacy code paths may still look at the
+		    settlement).
+		  - When the intake is migrated from a settlement-first legacy
+		    flow and the legacy helper ran first (flag OFF), the
+		    Stock Entry already exists and this method is a no-op.
+		  - When the flag is OFF, the legacy helper is the actual
+		    posting point and this method falls back to it via the
+		    `LIVESTOCK_ENTRY_BOUNDARY_V2` flag check below.
+		"""
+		if not intake_owned_materialization_enabled():
+			# Legacy rollout: defer to the settlement-owned draft
+			# Stock Entry path. The legacy helper is the canonical
+			# posting point when the flag is off; this method is the
+			# bypass.
+			return self._submit_settlement_stock_entry(user)
+
+		if not self.warehouse:
+			frappe.throw(
+				"No se puede crear la entrada de stock: el ingreso no tiene depósito definido"
+			)
+
+		# If the legacy helper already submitted a settlement-owned
+		# stock entry, leave it alone. The intake pointer is consistent
+		# with the settlement's stock_entry field in that case.
+		if self.settlement:
+			settlement = frappe.get_doc("Livestock Settlement", self.settlement)
+			if settlement.stock_entry:
+				se = frappe.get_doc("Stock Entry", settlement.stock_entry)
+				if se.docstatus == 1:
+					# Mirror the legacy pointer on the intake row so
+					# the BFF intake DTO can read it. The field is
+					# declared on the doctype, so `self.stock_entry`
+					# is always defined post-PR2.
+					if getattr(self, "stock_entry", None) != se.name:
+						self.db_set("stock_entry", se.name, update_modified=False)
+					return
+
+		# Canonical path: create a fresh Material Receipt Stock Entry
+		# owned by the intake. The settlement has no `stock_entry`
+		# pointer in this branch (the PR2 boundary is in effect).
+		se = frappe.new_doc("Stock Entry")
+		se.stock_entry_type = "Material Receipt"
+		se.purpose = "Material Receipt"
+		se.company = self.company
+		se.posting_date = self.posting_date
+
+		for line in self.lines or []:
+			se_item = se.append("items")
+			se_item.item_code = line.item_code
+			se_item.qty = line.expected_heads or 0
+			se_item.t_warehouse = self.warehouse
+			se_item.conversion_factor = 1
+
+		se.insert(ignore_permissions=True)
+		se.submit()
+
+		# Persist the pointer on the intake row so the BFF can surface
+		# `stockEntry` on the intake DTO. The field is declared on the
+		# doctype, so the assignment is unconditional. The
+		# `_cancel_settlement_stock_entry` revert helper reads this
+		# field to cancel the intake-owned Stock Entry on revert.
+		self.db_set("stock_entry", se.name, update_modified=False)
+
+		frappe.logger().info(
+			f"[livestock_intake] Stock Entry {se.name} created and submitted "
+			f"on intake {self.name} confirmed by {user} (PR2 path)"
 		)
 
 	@frappe.whitelist()
@@ -362,15 +561,47 @@ class LivestockIntake(Document):
 		"""
 		Cancel a submitted Stock Entry when reverting an intake.
 		No-op if already cancelled or not yet submitted (draft).
+
+		PR2 livestock-entry-settlement-boundary: the intake OWNS the
+		Stock Entry post-PR2 (`self.stock_entry`). Legacy intakes still
+		have a settlement-owned Stock Entry (one created by the
+		pre-PR2 settlement path). The helper covers both seams:
+
+		  1. Settlement-owned branch — legacy intakes. The settlement's
+		     `stock_entry` field carries the Stock Entry name.
+		  2. Intake-owned branch — post-PR2 intakes. The intake's own
+		     `stock_entry` field (set by `_create_and_submit_stock_entry`)
+		     carries the Stock Entry name.
+
+		The helper first tries the settlement-owned branch (legacy).
+		If absent, it falls back to the intake-owned branch. This
+		keeps legacy sites working and unblocks the post-PR2 path
+		that the PR 2 review found.
 		"""
-		if not self.settlement:
+		# Branch 1: settlement-owned (legacy intakes)
+		if self.settlement:
+			settlement = frappe.get_doc("Livestock Settlement", self.settlement)
+			if settlement.stock_entry:
+				se = frappe.get_doc("Stock Entry", settlement.stock_entry)
+				if se.docstatus == 2:
+					# Already cancelled — idempotent
+					return
+
+				if se.docstatus == 1:
+					se.cancel()
+					frappe.logger().info(
+						f"[livestock_intake] Stock Entry {se.name} cancelled on intake {self.name} "
+						f"reverted by {user} (settlement-owned legacy path)"
+					)
+					return
+
+		# Branch 2: intake-owned (post-PR2). The settlement path did
+		# not produce a Stock Entry, so the only artifact to cancel
+		# is the one the intake created on confirm.
+		if not getattr(self, "stock_entry", None):
 			return
 
-		settlement = frappe.get_doc("Livestock Settlement", self.settlement)
-		if not settlement.stock_entry:
-			return
-
-		se = frappe.get_doc("Stock Entry", settlement.stock_entry)
+		se = frappe.get_doc("Stock Entry", self.stock_entry)
 		if se.docstatus == 2:
 			# Already cancelled — idempotent
 			return
@@ -379,7 +610,7 @@ class LivestockIntake(Document):
 			se.cancel()
 			frappe.logger().info(
 				f"[livestock_intake] Stock Entry {se.name} cancelled on intake {self.name} "
-				f"reverted by {user}"
+				f"reverted by {user} (intake-owned PR2 path)"
 			)
 	
 	def log_action(self, action, user, payload=None):

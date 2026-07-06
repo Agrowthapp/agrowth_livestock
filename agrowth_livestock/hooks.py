@@ -47,6 +47,9 @@ migration_patches = {
     "0.0.1": ["agrowth_livestock.patches.v1_create_invoice_custom_fields.execute"],
     "0.0.2": ["agrowth_livestock.patches.v2_create_corral_fields.execute"],
     "0.0.3": ["agrowth_livestock.patches.v8_sync_livestock_permissions.execute"],
+    "0.0.4": [
+        "agrowth_livestock.patches.v10_add_herd_batch_confirmation_fields.execute"
+    ],
 }
 
 # Document Events

@@ -32,11 +32,12 @@
   "column_break_22",
   "total_comisiones",
   "total_neto",
-  "generated_section",
-  "purchase_invoice",
-  "herd_batch",
-  "stock_entry"
- ],
+   "generated_section",
+   "purchase_invoice",
+   "intake",
+   "herd_batch",
+   "stock_entry"
+  ],
  "fields": [
   {
    "fieldname": "company",
@@ -170,13 +171,20 @@
    "fieldtype": "Section Break",
    "label": "Documentos Generados"
   },
-  {
-   "fieldname": "purchase_invoice",
-   "fieldtype": "Link",
-   "label": "Factura de Compra",
-   "options": "Purchase Invoice",
-   "read_only": 1
-  },
+   {
+    "fieldname": "purchase_invoice",
+    "fieldtype": "Link",
+    "label": "Factura de Compra",
+    "options": "Purchase Invoice",
+    "read_only": 1
+   },
+   {
+    "fieldname": "intake",
+    "fieldtype": "Link",
+    "label": "Ingreso",
+    "options": "Livestock Intake",
+    "read_only": 1
+   },
   {
    "fieldname": "herd_batch",
    "fieldtype": "Link",

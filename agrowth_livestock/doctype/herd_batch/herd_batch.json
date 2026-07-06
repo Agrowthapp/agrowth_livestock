@@ -10,69 +10,93 @@
  "document_type": "Document",
  "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [
-  "company",
-  "warehouse",
-  "column_break_3",
-  "status",
-  "arrival_date",
-  "origin_section",
-  "origin_type",
-  "origin_document",
-  "column_break_8",
-  "notes",
-  "line_section",
-  "lines"
- ],
- "fields": [
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Empresa",
-   "options": "Company",
-   "reqd": 1
-  },
-  {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Depósito",
-   "options": "Warehouse",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Estado",
-   "options": "Active\nSold\nSplit\nMerged\nClosed",
-   "reqd": 1,
-   "default": "Active"
-  },
-  {
-   "fieldname": "arrival_date",
-   "fieldtype": "Date",
-   "label": "Fecha de Ingreso",
-   "reqd": 1
-  },
+  "field_order": [
+   "company",
+   "warehouse",
+   "column_break_3",
+   "status",
+   "confirmation_status",
+   "confirmation_mode",
+   "confirmed_at",
+   "arrival_date",
+   "origin_section",
+   "origin_type",
+   "origin_document",
+   "column_break_8",
+   "notes",
+   "line_section",
+   "lines"
+  ],
+  "fields": [
+   {
+    "fieldname": "company",
+    "fieldtype": "Link",
+    "in_list_view": 1,
+    "label": "Empresa",
+    "options": "Company",
+    "reqd": 1
+   },
+   {
+    "fieldname": "warehouse",
+    "fieldtype": "Link",
+    "in_list_view": 1,
+    "label": "Depósito",
+    "options": "Warehouse",
+    "reqd": 1
+   },
+   {
+    "fieldname": "column_break_3",
+    "fieldtype": "Column Break"
+   },
+   {
+    "fieldname": "status",
+    "fieldtype": "Select",
+    "in_list_view": 1,
+    "label": "Estado",
+    "options": "Pending Entry\nActive\nSold\nSplit\nMerged\nClosed",
+    "reqd": 1,
+    "default": "Pending Entry"
+   },
+   {
+    "fieldname": "confirmation_status",
+    "fieldtype": "Select",
+    "in_list_view": 1,
+    "label": "Estado de Confirmación",
+    "options": "Pending\nCompleted\nRejected",
+    "default": "Pending"
+   },
+   {
+    "fieldname": "confirmation_mode",
+    "fieldtype": "Select",
+    "label": "Modo de Confirmación",
+    "options": "None\nManual\nCSV EID\nRejected",
+    "default": "None"
+   },
+   {
+    "fieldname": "confirmed_at",
+    "fieldtype": "Datetime",
+    "label": "Confirmado el",
+    "read_only": 1
+   },
+   {
+    "fieldname": "arrival_date",
+    "fieldtype": "Date",
+    "label": "Fecha de Ingreso",
+    "reqd": 1
+   },
   {
    "fieldname": "origin_section",
    "fieldtype": "Section Break",
    "label": "Origen"
   },
-  {
-   "fieldname": "origin_type",
-   "fieldtype": "Select",
-   "label": "Tipo de Origen",
-   "options": "Purchase\nInternal\nMixed\nOther",
-   "reqd": 1,
-   "default": "Purchase"
-  },
+   {
+    "fieldname": "origin_type",
+    "fieldtype": "Select",
+    "label": "Tipo de Origen",
+    "options": "Livestock Settlement\nLivestock Dispatch\nLivestock Intake\nPurchase Invoice\nSales Invoice\nStock Entry\nPurchase\nInternal\nMixed\nOther",
+    "reqd": 1,
+    "default": "Other"
+   },
   {
    "fieldname": "origin_document",
    "fieldtype": "Dynamic Link",
@@ -83,11 +107,29 @@
    "fieldname": "column_break_8",
    "fieldtype": "Column Break"
   },
-  {
-   "fieldname": "notes",
-   "fieldtype": "Text",
-   "label": "Notas"
-  },
+   {
+    "fieldname": "notes",
+    "fieldtype": "Text",
+    "label": "Notas"
+   },
+   {
+    "fieldname": "total_heads",
+    "fieldtype": "Int",
+    "label": "Total Cabezas",
+    "read_only": 1
+   },
+   {
+    "fieldname": "total_weight",
+    "fieldtype": "Float",
+    "label": "Total Peso",
+    "read_only": 1
+   },
+   {
+    "fieldname": "total_amount",
+    "fieldtype": "Currency",
+    "label": "Total Monto",
+    "read_only": 1
+   },
   {
    "fieldname": "line_section",
    "fieldtype": "Section Break",

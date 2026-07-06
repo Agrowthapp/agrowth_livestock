@@ -9,6 +9,9 @@ class LivestockOpeningBalance(Document):
         self._calculate_totals()
 
     def _validate_no_duplicate_session(self):
+        # Skip validation for in-app openings that don't have a migration session.
+        if not self.migration_session:
+            return
         existing = frappe.db.exists(
             "Livestock Opening Balance",
             {

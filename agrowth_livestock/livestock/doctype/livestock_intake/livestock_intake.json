@@ -11,6 +11,7 @@
   "company",
   "settlement",
   "herd_batch",
+  "stock_entry",
   "warehouse",
   "column_break_4",
   "status",
@@ -65,6 +66,13 @@
    "fieldtype": "Link",
    "label": "Lote",
    "options": "Herd Batch"
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "label": "Entrada de stock",
+   "options": "Stock Entry",
+   "read_only": 1
   },
   {
    "fieldname": "warehouse",

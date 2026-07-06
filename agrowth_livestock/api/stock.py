@@ -206,6 +206,40 @@ def get_summary(company_id, category=None, sex=None, page=1, limit=20):
         else:
             bucket["conCaravana"] += 1
 
+    # Aggregate Livestock Stock Ledger Entry rows for opening/adjustment movements
+    ledger_entries = frappe.db.sql(
+        """
+        SELECT category, sex, heads_qty
+        FROM `tabLivestockStockLedgerEntry`
+        WHERE company = %s AND movement_type IN ('opening', 'opening_adjustment')
+        """,
+        (company_id,),
+        as_dict=True,
+    )
+
+    for entry in ledger_entries:
+        key = (
+            str(entry.get("category") or ""),
+            str(entry.get("sex") or ""),
+            "",  # No herd_batch for opening entries
+        )
+        bucket = bucket_map.setdefault(
+            key,
+            {
+                "total": 0,
+                "conCaravana": 0,
+                "sinCaravana": 0,
+                "category": entry.get("category") or None,
+                "sex": entry.get("sex") or None,
+                "tropa": None,
+            },
+        )
+        qty = cint(entry.get("heads_qty") or 0)
+        bucket["total"] += qty
+        bucket["sinCaravana"] += qty  # Opening entries have no ear tags
+        total += qty
+        sin_caravana += qty
+
     buckets = [_map_bucket(b) for b in bucket_map.values()]
 
     return {

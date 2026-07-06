@@ -493,10 +493,29 @@ def list_intake_history_feed(company_id, page=1, limit=20):
     page = max(cint(page), 1)
     limit = min(max(cint(limit), 1), 200)
 
+    # PR2 / livestock-entry-settlement-boundary: the `confirmation_*` fields
+    # are part of the post-PR2 Herd Batch schema. Pre-PR2 deployments and
+    # partially-migrated sites do not have them; the API must NOT 417 on
+    # a field-not-found filter. Build the filter/select list defensively.
+    base_filters = [["company", "=", company_id]]
+    meta = frappe.get_meta("Herd Batch")
+    if meta.get_field("confirmation_status"):
+        base_filters.append(["confirmation_status", "=", "Completed"])
+
+    requested_fields = [
+        "name",
+        "origin_document",
+        "arrival_date",
+        "confirmation_mode",
+        "confirmed_at",
+        "modified",
+    ]
+    selected_fields = _existing_fields("Herd Batch", requested_fields)
+
     batches = frappe.get_all(
         "Herd Batch",
-        filters=[["company", "=", company_id], ["confirmation_status", "=", "Completed"]],
-        fields=["name", "origin_document", "arrival_date", "confirmation_mode", "confirmed_at", "modified"],
+        filters=base_filters,
+        fields=selected_fields,
         order_by="modified desc",
         limit_start=(page - 1) * limit,
         limit_page_length=limit,

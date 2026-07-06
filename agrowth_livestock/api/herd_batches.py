@@ -240,6 +240,26 @@ def close_herd_batch(company_id, batch_id):
     return True
 
 
+def _set_confirmation_fields(doc, *, status, mode, ts):
+    """
+    Set the confirmation_* fields on a Herd Batch doc defensively.
+
+    Pre-PR2 Herd Batch schemas (and partially-migrated sites) may not have
+    `confirmation_status`, `confirmation_mode`, or `confirmed_at` declared.
+    Writing to a missing field raises an AttributeError that Frappe turns
+    into HTTP 417. Guard every write with `meta.get_field` so the API
+    degrades gracefully on legacy schemas and the BFF can still surface
+    a useful response.
+    """
+    meta = frappe.get_meta(doc.doctype)
+    if meta.get_field("confirmation_status") and hasattr(doc, "confirmation_status"):
+        doc.confirmation_status = status
+    if meta.get_field("confirmation_mode") and hasattr(doc, "confirmation_mode"):
+        doc.confirmation_mode = mode
+    if meta.get_field("confirmed_at") and hasattr(doc, "confirmed_at"):
+        doc.confirmed_at = ts
+
+
 @frappe.whitelist()
 def confirm_herd_batch(company_id, batch_id, status="Completed", mode="None", notes=None):
     row = _load_batch(company_id, batch_id)
@@ -253,22 +273,18 @@ def confirm_herd_batch(company_id, batch_id, status="Completed", mode="None", no
 
     doc = frappe.get_doc("Herd Batch", batch_id)
     if status == "Rejected":
-        doc.confirmation_status = "Rejected"
-        doc.confirmation_mode = "Rejected"
-        doc.confirmed_at = now()
+        _set_confirmation_fields(doc, status="Rejected", mode="Rejected", ts=now())
         if notes is not None:
             doc.notes = _append_rejection_note(doc.notes, notes)
     else:
         doc.status = "Active"
-        doc.confirmation_status = "Completed"
-        doc.confirmation_mode = mode
-        doc.confirmed_at = now()
+        _set_confirmation_fields(doc, status="Completed", mode=mode, ts=now())
 
     doc.save()
 
     return {
         "id": str(doc.name or batch_id),
         "status": str(doc.status or row.get("status") or "Pending Entry"),
-        "confirmation_status": str(doc.confirmation_status or status),
-        "confirmation_mode": str(doc.confirmation_mode or mode),
+        "confirmation_status": str(getattr(doc, "confirmation_status", None) or status),
+        "confirmation_mode": str(getattr(doc, "confirmation_mode", None) or mode),
     }
